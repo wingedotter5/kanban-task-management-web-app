@@ -1,0 +1,57 @@
+import { createContext, useState, useContext } from 'react';
+
+import { initialBoards } from './data';
+
+const AppContext = createContext();
+
+const AppContextProvider = ({ children }) => {
+  const [boards, setBoards] = useState(initialBoards);
+  const [selectedBoardId, setSelectedBoardId] = useState(initialBoards[0].id);
+
+  const createNewBoard = (board) => {
+    setBoards((prevBoards) => prevBoards.concat(board));
+  };
+
+  const selectBoard = (id) => setSelectedBoardId(id);
+
+  const addNewTask = (task) => {
+    setBoards((prevBoards) => {
+      return prevBoards.map((b) => {
+        if (b.id === selectedBoardId) {
+          return {
+            ...b,
+            columns: b.columns.map((c) => {
+              if (c.name === task.status) {
+                return {
+                  ...c,
+                  tasks: c.tasks.concat(task),
+                };
+              } else {
+                return c;
+              }
+            }),
+          };
+        } else {
+          return b;
+        }
+      });
+    });
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        boards,
+        selectedBoardId,
+        selectBoard,
+        createNewBoard,
+        addNewTask,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export default AppContextProvider;
+export const useAppContext = () => useContext(AppContext);
