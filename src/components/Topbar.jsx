@@ -8,14 +8,23 @@ import { useAppContext } from '../AppContext';
 import Modal from './Modal';
 import AddNewTask from './AddNewTask';
 import { useDisclosure } from '../hooks';
+import EditBoard from './EditBoard';
+import Button from './Button';
+import IconButton from './IconButton';
+import FlyOut from './FlyOut';
 
 const Topbar = () => {
   const { selectedBoardId, boards } = useAppContext();
   const selectedBoard = boards.find((b) => b.id === selectedBoardId);
   const {
-    isOpen,
+    isOpen: isAddNewTaskModalOpen,
     onOpen: showAddNewTaskModal,
     onClose: closeAddNewTaskModal,
+  } = useDisclosure();
+  const {
+    isOpen: isEditBoardModalOpen,
+    onOpen: showEditBoardModal,
+    onClose: closeEditBoardModal,
   } = useDisclosure();
 
   return (
@@ -25,12 +34,30 @@ const Topbar = () => {
         <AddNewTaskButton onClick={showAddNewTaskModal}>
           +Add New Task
         </AddNewTaskButton>
-        <IconEllipsis />
+        {/* <IconButton onClick={showEditBoardModal}>
+          <IconEllipsis />
+        </IconButton> */}
+        <FlyOut>
+          <FlyOut.Toggle />
+          <FlyOut.List>
+            <FlyOut.Item onClick={showEditBoardModal}>Edit</FlyOut.Item>
+          </FlyOut.List>
+        </FlyOut>
       </Flex>
-      {isOpen &&
+      {isAddNewTaskModalOpen &&
         createPortal(
           <Modal onClose={closeAddNewTaskModal}>
             <AddNewTask onClose={closeAddNewTaskModal} />
+          </Modal>,
+          document.getElementById('portal'),
+        )}
+      {isEditBoardModalOpen &&
+        createPortal(
+          <Modal onClose={closeEditBoardModal}>
+            <EditBoard
+              board={selectedBoard}
+              closeEditBoardModal={closeEditBoardModal}
+            />
           </Modal>,
           document.getElementById('portal'),
         )}

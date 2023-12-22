@@ -12,6 +12,18 @@ const AppContextProvider = ({ children }) => {
     setBoards((prevBoards) => prevBoards.concat(board));
   };
 
+  const updateBoard = (board) => {
+    setBoards((prevBoards) => {
+      return prevBoards.map((b) => {
+        if (b.id === selectedBoardId) {
+          return board;
+        } else {
+          return b;
+        }
+      });
+    });
+  };
+
   const selectBoard = (id) => setSelectedBoardId(id);
 
   const addNewTask = (task) => {
@@ -46,6 +58,7 @@ const AppContextProvider = ({ children }) => {
         selectBoard,
         addNewBoard,
         addNewTask,
+        updateBoard,
       }}
     >
       {children}
