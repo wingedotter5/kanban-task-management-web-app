@@ -13,7 +13,7 @@ import Button from './Button';
 import { emptyBoard, emptyColumn } from '../data';
 
 const AddNewBoard = ({ onClose }) => {
-  const { createNewBoard } = useAppContext();
+  const { addNewBoard } = useAppContext();
   const [boardTitle, setBoardTitle] = useState('');
   const [columns, setColumns] = useState([
     {
@@ -86,7 +86,7 @@ const AddNewBoard = ({ onClose }) => {
           $full
           $primary
           onClick={() => {
-            createNewBoard({
+            addNewBoard({
               ...emptyBoard,
               id: uuidv4(),
               name: boardTitle,

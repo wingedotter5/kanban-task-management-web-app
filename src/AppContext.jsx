@@ -8,7 +8,7 @@ const AppContextProvider = ({ children }) => {
   const [boards, setBoards] = useState(initialBoards);
   const [selectedBoardId, setSelectedBoardId] = useState(initialBoards[0].id);
 
-  const createNewBoard = (board) => {
+  const addNewBoard = (board) => {
     setBoards((prevBoards) => prevBoards.concat(board));
   };
 
@@ -44,7 +44,7 @@ const AppContextProvider = ({ children }) => {
         boards,
         selectedBoardId,
         selectBoard,
-        createNewBoard,
+        addNewBoard,
         addNewTask,
       }}
     >
