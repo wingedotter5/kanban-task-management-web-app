@@ -54,7 +54,6 @@ const BoardListItem = ({ board, active, onClick }) => {
 
 const StyledSidebar = styled.aside`
   background-color: #2b2c37;
-  min-height: 100vh;
   width: 16rem;
 `;
 

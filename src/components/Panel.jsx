@@ -21,7 +21,9 @@ const Panel = () => {
   );
 };
 
-const StyledPanel = styled.div``;
+const StyledPanel = styled.div`
+  overflow: hidden;
+`;
 
 const GridContainer = styled.div`
   display: grid;
@@ -30,6 +32,7 @@ const GridContainer = styled.div`
   grid-auto-flow: column;
   gap: 1rem;
   padding: 1rem;
+  overflow-x: auto;
 `;
 
 const NewColumnButton = styled.button`
