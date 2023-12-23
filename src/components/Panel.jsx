@@ -1,12 +1,21 @@
 import styled from 'styled-components';
+import { createPortal } from 'react-dom';
 
 import Topbar from './Topbar';
 import { useAppContext } from '../AppContext';
 import Column from './Column';
+import EditBoard from './EditBoard';
+import Modal from './Modal';
+import { useDisclosure } from '../hooks';
 
 const Panel = () => {
   const { selectedBoardId, boards } = useAppContext();
   const columns = boards.find((b) => b.id === selectedBoardId).columns;
+  const {
+    isOpen: isEditBoardModalOpen,
+    onOpen: showEditBoardModal,
+    onClose: closeEditBoardModal,
+  } = useDisclosure();
 
   return (
     <StyledPanel>
@@ -15,8 +24,17 @@ const Panel = () => {
         {columns.map((column) => (
           <Column column={column} key={column.id} />
         ))}
-        <NewColumnButton>+ New Column</NewColumnButton>
+        <NewColumnButton onClick={showEditBoardModal}>
+          + New Column
+        </NewColumnButton>
       </GridContainer>
+      {isEditBoardModalOpen &&
+        createPortal(
+          <Modal onClose={closeEditBoardModal}>
+            <EditBoard closeEditBoardModal={closeEditBoardModal} />
+          </Modal>,
+          document.getElementById('portal'),
+        )}
     </StyledPanel>
   );
 };

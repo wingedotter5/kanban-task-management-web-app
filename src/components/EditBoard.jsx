@@ -11,10 +11,11 @@ import Button from './Button';
 import { emptyColumn } from '../data';
 import { useAppContext } from '../AppContext';
 
-const EditBoard = ({ board, closeEditBoardModal }) => {
+const EditBoard = ({ closeEditBoardModal }) => {
   const { updateBoard, selectedBoardId, boards } = useAppContext();
-  const [boardName, setBoardName] = useState(board.name);
-  const [columns, setColumns] = useState(board.columns);
+  const selectedBoard = boards.find((b) => b.id === selectedBoardId);
+  const [boardName, setBoardName] = useState(selectedBoard.name);
+  const [columns, setColumns] = useState(selectedBoard.columns);
 
   const onBoardNameChangeHandler = (ev) => {
     setBoardName(ev.target.value);
@@ -58,22 +59,24 @@ const EditBoard = ({ board, closeEditBoardModal }) => {
         <Label>Board Name</Label>
         <Input value={boardName} onChange={onBoardNameChangeHandler} />
       </FormControl>
-      <FormControl>
-        <Label>Board Columns</Label>
-        <Flex $gap="1rem" $dir="column">
-          {columns.map((column) => (
-            <Flex key={column.id} $gap="1rem" $items="center">
-              <Input
-                value={column.name}
-                onChange={(ev) => onColumnChangeHandler(ev, column.id)}
-              />
-              <IconButton onClick={() => removeColumn(column.id)}>
-                <IconCross />
-              </IconButton>
-            </Flex>
-          ))}
-        </Flex>
-      </FormControl>
+      {columns.length > 0 && (
+        <FormControl>
+          <Label>Board Columns</Label>
+          <Flex $gap="1rem" $dir="column">
+            {columns.map((column) => (
+              <Flex key={column.id} $gap="1rem" $items="center">
+                <Input
+                  value={column.name}
+                  onChange={(ev) => onColumnChangeHandler(ev, column.id)}
+                />
+                <IconButton onClick={() => removeColumn(column.id)}>
+                  <IconCross />
+                </IconButton>
+              </Flex>
+            ))}
+          </Flex>
+        </FormControl>
+      )}
       <Flex $gap="1rem" $dir="column">
         <Button onClick={addNewColumn}>+Add New Column</Button>
         <Button $primary onClick={onSaveChanges}>

@@ -1,12 +1,13 @@
 import { createContext, useState, useContext } from 'react';
 
-import { initialBoards } from './data';
+import { initialBoards, emptyBoard } from './data';
+import { uuidv4 } from './utils';
 
 const AppContext = createContext();
 
 const AppContextProvider = ({ children }) => {
   const [boards, setBoards] = useState(initialBoards);
-  const [selectedBoardId, setSelectedBoardId] = useState(initialBoards[0].id);
+  const [selectedBoardId, setSelectedBoardId] = useState(boards[0].id);
 
   const addNewBoard = (board) => {
     setBoards((prevBoards) => prevBoards.concat(board));
@@ -25,6 +26,26 @@ const AppContextProvider = ({ children }) => {
   };
 
   const selectBoard = (id) => setSelectedBoardId(id);
+
+  const deleteSelectedBoard = () => {
+    setBoards((prevBoards) => {
+      const updatedBoards = prevBoards.filter((b) => b.id !== selectedBoardId);
+      if (updatedBoards.length > 0) {
+        setSelectedBoardId(updatedBoards[0].id);
+        return updatedBoards;
+      } else {
+        const untitledId = uuidv4();
+        setSelectedBoardId(untitledId);
+        return [
+          {
+            ...emptyBoard,
+            id: untitledId,
+            name: 'Untitled',
+          },
+        ];
+      }
+    });
+  };
 
   const addNewTask = (task) => {
     setBoards((prevBoards) => {
@@ -59,6 +80,7 @@ const AppContextProvider = ({ children }) => {
         addNewBoard,
         addNewTask,
         updateBoard,
+        deleteSelectedBoard,
       }}
     >
       {children}

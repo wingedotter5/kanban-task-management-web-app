@@ -61,22 +61,24 @@ const AddNewBoard = ({ onClose }) => {
           placeholder="e.g. Web Design"
         />
       </FormControl>
-      <FormControl>
-        <Label>Board Columns</Label>
-        <Flex $dir="column" $gap="1rem">
-          {columns.map((column) => (
-            <Flex $items="center" $gap="1rem" key={column.id}>
-              <Input
-                value={column.title}
-                onChange={(ev) => onColumnChangeHandler(ev, column.id)}
-              />
-              <IconButton onClick={() => removeColumn(column.id)}>
-                <IconCross />
-              </IconButton>
-            </Flex>
-          ))}
-        </Flex>
-      </FormControl>
+      {columns.length > 0 && (
+        <FormControl>
+          <Label>Board Columns</Label>
+          <Flex $dir="column" $gap="1rem">
+            {columns.map((column) => (
+              <Flex $items="center" $gap="1rem" key={column.id}>
+                <Input
+                  value={column.title}
+                  onChange={(ev) => onColumnChangeHandler(ev, column.id)}
+                />
+                <IconButton onClick={() => removeColumn(column.id)}>
+                  <IconCross />
+                </IconButton>
+              </Flex>
+            ))}
+          </Flex>
+        </FormControl>
+      )}
 
       <Flex $dir="column" $gap="1rem">
         <Button $full onClick={addNewColumn}>

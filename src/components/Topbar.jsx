@@ -12,6 +12,7 @@ import EditBoard from './EditBoard';
 import Button from './Button';
 import IconButton from './IconButton';
 import FlyOut from './FlyOut';
+import DeleteBoard from './DeleteBoard';
 
 const Topbar = () => {
   const { selectedBoardId, boards } = useAppContext();
@@ -26,6 +27,11 @@ const Topbar = () => {
     onOpen: showEditBoardModal,
     onClose: closeEditBoardModal,
   } = useDisclosure();
+  const {
+    isOpen: isDeleteBoardModalOpen,
+    onOpen: showDeleteBoardModal,
+    onClose: closeDeleteBoardModal,
+  } = useDisclosure();
 
   return (
     <StyledTopbar>
@@ -34,13 +40,13 @@ const Topbar = () => {
         <AddNewTaskButton onClick={showAddNewTaskModal}>
           +Add New Task
         </AddNewTaskButton>
-        {/* <IconButton onClick={showEditBoardModal}>
-          <IconEllipsis />
-        </IconButton> */}
         <FlyOut>
           <FlyOut.Toggle />
           <FlyOut.List>
-            <FlyOut.Item onClick={showEditBoardModal}>Edit</FlyOut.Item>
+            <FlyOut.Item onClick={showEditBoardModal}>Edit board</FlyOut.Item>
+            <FlyOut.Item onClick={showDeleteBoardModal}>
+              Delete board
+            </FlyOut.Item>
           </FlyOut.List>
         </FlyOut>
       </Flex>
@@ -54,10 +60,14 @@ const Topbar = () => {
       {isEditBoardModalOpen &&
         createPortal(
           <Modal onClose={closeEditBoardModal}>
-            <EditBoard
-              board={selectedBoard}
-              closeEditBoardModal={closeEditBoardModal}
-            />
+            <EditBoard closeEditBoardModal={closeEditBoardModal} />
+          </Modal>,
+          document.getElementById('portal'),
+        )}
+      {isDeleteBoardModalOpen &&
+        createPortal(
+          <Modal onClose={closeDeleteBoardModal}>
+            <DeleteBoard closeDeleteBoardModal={closeDeleteBoardModal} />
           </Modal>,
           document.getElementById('portal'),
         )}
