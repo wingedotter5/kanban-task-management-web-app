@@ -88,6 +88,7 @@ const AddNewTask = ({ onClose }) => {
         <Input
           onChange={(ev) => setTaskName(ev.target.value)}
           placeholder="e.g. Take coffee break"
+          value={taskName}
         />
       </FormControl>
       <FormControl>
@@ -96,6 +97,7 @@ const AddNewTask = ({ onClose }) => {
           onChange={(ev) => setTaskDescription(ev.target.value)}
           rows="5"
           placeholder="e.g. It's always good to take a break. This 15 minute break will recharge the batteries a little."
+          value={taskDescription}
         ></Textarea>
       </FormControl>
       <FormControl>
