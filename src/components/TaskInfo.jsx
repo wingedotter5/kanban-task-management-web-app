@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { createPortal } from 'react-dom';
 
 import Flex from './Flex';
 import FlyOut from './FlyOut';
@@ -8,6 +9,9 @@ import Label from './Label';
 import Select from './Select';
 import { useAppContext } from '../AppContext';
 import Button from './Button';
+import { useDisclosure } from '../hooks';
+import Modal from './Modal';
+import EditTask from './EditTask';
 
 const TaskInfo = ({ task, closeTaskInfoModal }) => {
   const [status, setStatus] = useState(task.status);
@@ -17,6 +21,15 @@ const TaskInfo = ({ task, closeTaskInfoModal }) => {
     .columns.map((c) => c.name);
   const [subtasks, setSubtasks] = useState(task.subtasks);
   const subtasksRemaining = subtasks.filter((st) => st.isCompleted).length;
+  const {
+    isOpen: isEditTaskModalOpen,
+    onOpen: showEditTaskModal,
+    onClose: closeEditTaskModal,
+  } = useDisclosure();
+
+  useEffect(() => {
+    setSubtasks(task.subtasks);
+  }, [task]);
 
   const onStatusChangeHandler = (ev, id) => {
     setSubtasks((prevSubtasks) => {
@@ -34,62 +47,71 @@ const TaskInfo = ({ task, closeTaskInfoModal }) => {
   };
 
   return (
-    <StyledTaskInfo>
-      <Flex $justify="space-between" $items="center">
-        <Title>{task.title}</Title>
-        <FlyOut>
-          <FlyOut.Toggle />
-          <FlyOut.List>
-            <FlyOut.Item>Edit Task</FlyOut.Item>
-            <FlyOut.Item>Delete Task</FlyOut.Item>
-          </FlyOut.List>
-        </FlyOut>
-      </Flex>
-      <Small>
-        Subtasks ({subtasksRemaining} of {subtasks.length})
-      </Small>
-      {subtasks.map((st) => (
-        <Subtask key={st.id}>
-          <input
-            type="checkbox"
-            checked={st.isCompleted}
-            onChange={(ev) => onStatusChangeHandler(ev, st.id)}
-          />
-          {st.title}
-        </Subtask>
-      ))}
-      <FormControl>
-        <Label>Current Status</Label>
-        <Select
-          value={status}
+    <>
+      <StyledTaskInfo>
+        <Flex $justify="space-between" $items="center">
+          <Title>{task.title}</Title>
+          <FlyOut>
+            <FlyOut.Toggle />
+            <FlyOut.List>
+              <FlyOut.Item onClick={showEditTaskModal}>Edit Task</FlyOut.Item>
+              <FlyOut.Item>Delete Task</FlyOut.Item>
+            </FlyOut.List>
+          </FlyOut>
+        </Flex>
+        <Small>
+          Subtasks ({subtasksRemaining} of {subtasks.length})
+        </Small>
+        {subtasks.map((st) => (
+          <Subtask key={st.id}>
+            <input
+              type="checkbox"
+              checked={st.isCompleted}
+              onChange={(ev) => onStatusChangeHandler(ev, st.id)}
+            />
+            {st.title}
+          </Subtask>
+        ))}
+        <FormControl>
+          <Label>Current Status</Label>
+          <Select
+            value={status}
+            $full
+            onChange={(ev) => setStatus(ev.target.value)}
+          >
+            {statuses.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+        <Button
+          $primary
           $full
-          onChange={(ev) => setStatus(ev.target.value)}
+          onClick={() => {
+            updateTask(
+              {
+                ...task,
+                status,
+                subtasks,
+              },
+              task.status,
+            );
+            closeTaskInfoModal();
+          }}
         >
-          {statuses.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
-      <Button
-        $primary
-        $full
-        onClick={() => {
-          updateTask(
-            {
-              ...task,
-              status,
-              subtasks,
-            },
-            task.status,
-          );
-          closeTaskInfoModal();
-        }}
-      >
-        Save Changes
-      </Button>
-    </StyledTaskInfo>
+          Save Changes
+        </Button>
+      </StyledTaskInfo>
+      {isEditTaskModalOpen &&
+        createPortal(
+          <Modal onClose={closeEditTaskModal}>
+            <EditTask task={task} closeEditTaskModal={closeEditTaskModal} />
+          </Modal>,
+          document.getElementById('portal'),
+        )}
+    </>
   );
 };
 
