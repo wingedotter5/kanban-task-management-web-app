@@ -56,7 +56,6 @@ const StyledFlyOut = styled.div`
 const StyledList = styled.ul`
   position: absolute;
   right: 0;
-  top: 200%;
   background-color: #20212c;
   color: #828fa3;
   list-style-type: none;
@@ -66,6 +65,7 @@ const StyledList = styled.ul`
 
 const StyledItem = styled.li`
   cursor: pointer;
+  white-space: nowrap;
 `;
 
 FlyOut.Toggle = Toggle;

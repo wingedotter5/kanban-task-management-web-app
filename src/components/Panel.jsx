@@ -51,6 +51,10 @@ const GridContainer = styled.div`
   gap: 1rem;
   padding: 1rem;
   overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const NewColumnButton = styled.button`

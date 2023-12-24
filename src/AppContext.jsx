@@ -71,6 +71,46 @@ const AppContextProvider = ({ children }) => {
     });
   };
 
+  const updateTask = (task, previousStatus) => {
+    setBoards((prevBoards) => {
+      return prevBoards.map((b) => {
+        if (b.id === selectedBoardId) {
+          return {
+            ...b,
+            columns: b.columns.map((c) => {
+              if (c.name === task.status) {
+                if (previousStatus !== task.status) {
+                  return {
+                    ...c,
+                    tasks: c.tasks.concat(task),
+                  };
+                } else {
+                  return {
+                    ...c,
+                    tasks: c.tasks.map((t) => {
+                      if (t.id === task.id) {
+                        return task;
+                      } else {
+                        return t;
+                      }
+                    }),
+                  };
+                }
+              } else {
+                return {
+                  ...c,
+                  tasks: c.tasks.filter((t) => t.id !== task.id),
+                };
+              }
+            }),
+          };
+        } else {
+          return b;
+        }
+      });
+    });
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -81,6 +121,7 @@ const AppContextProvider = ({ children }) => {
         addNewTask,
         updateBoard,
         deleteSelectedBoard,
+        updateTask,
       }}
     >
       {children}
