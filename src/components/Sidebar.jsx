@@ -7,6 +7,10 @@ import IconBoard from './icons/IconBoard';
 import Modal from './Modal';
 import AddNewBoard from './AddNewBoard';
 import { useDisclosure } from '../hooks';
+import IconLogoLight from './icons/IconLogoLight';
+import Flex from './Flex';
+import BoardListItem from './BoardListItem';
+import BoardList from './BoardList';
 
 const Sidebar = () => {
   const { boards, selectBoard, selectedBoardId } = useAppContext();
@@ -18,6 +22,10 @@ const Sidebar = () => {
 
   return (
     <StyledSidebar>
+      <Flex $items="center" style={{ height: '5rem', padding: '1rem' }}>
+        <IconLogoLight />
+      </Flex>
+      <Info>All Boards ({boards.length})</Info>
       <CreateNewBoardButton onClick={showCreateBoardModal}>
         <IconBoard />
         +Create New Board
@@ -43,18 +51,13 @@ const Sidebar = () => {
   );
 };
 
-const BoardListItem = ({ board, active, onClick }) => {
-  return (
-    <StyledBoardListItem onClick={onClick} $active={active}>
-      <IconBoard />
-      <span>{board.name}</span>
-    </StyledBoardListItem>
-  );
-};
-
 const StyledSidebar = styled.aside`
   background-color: #2b2c37;
   width: 16rem;
+
+  @media screen and (max-width: 375px) {
+    display: none;
+  }
 `;
 
 const CreateNewBoardButton = styled.button`
@@ -76,26 +79,14 @@ const CreateNewBoardButton = styled.button`
   }
 `;
 
-const BoardList = styled.ul`
-  list-style-type: none;
-`;
-
-const StyledBoardListItem = styled.li`
-  background-color: ${(props) => (props.$active ? '#635fc7' : '')};
-  color: ${(props) => (props.$active ? 'white' : '#828fa3')};
+const Info = styled.span`
+  color: #828fa3;
+  letter-spacing: 0.25em;
+  margin-bottom: 1rem;
+  font-size: 14px;
   font-weight: bolder;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  border-top-right-radius: 1e3px;
-  border-bottom-right-radius: 1e3px;
-
-  &:hover {
-    color: #635fc7;
-    background-color: white;
-  }
+  padding: 0 1rem;
+  display: block;
 `;
 
 export default Sidebar;

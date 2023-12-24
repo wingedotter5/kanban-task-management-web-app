@@ -13,6 +13,10 @@ import Button from './Button';
 import IconButton from './IconButton';
 import FlyOut from './FlyOut';
 import DeleteBoard from './DeleteBoard';
+import IconAdd from './icons/IconAdd';
+import IconLogo from './icons/IconLogo';
+import IconChevronDown from './icons/IconChevronDown';
+import MobileBoardSwitcher from './MobileBoardSwitcher';
 
 const Topbar = () => {
   const { selectedBoardId, boards } = useAppContext();
@@ -32,14 +36,33 @@ const Topbar = () => {
     onOpen: showDeleteBoardModal,
     onClose: closeDeleteBoardModal,
   } = useDisclosure();
+  const {
+    isOpen: isMobileBoardSwitcherOpen,
+    onOpen: showMobileBoardSwitcher,
+    onClose: closeMobileBoardSwitcher,
+  } = useDisclosure();
 
   return (
     <StyledTopbar>
-      <h2>{selectedBoard.name}</h2>
+      <Flex $items="center" $gap="0.5rem">
+        <IconLogo className="mobile-only" />
+        <h2>{selectedBoard.name}</h2>
+        <IconButton className="mobile-only" onClick={showMobileBoardSwitcher}>
+          <IconChevronDown />
+        </IconButton>
+      </Flex>
       <Flex $gap="1rem" $items="center">
         <AddNewTaskButton onClick={showAddNewTaskModal}>
           +Add New Task
         </AddNewTaskButton>
+        <Button
+          onClick={showAddNewTaskModal}
+          $primary
+          style={{ padding: '0.5rem 1rem' }}
+          className="mobile-only"
+        >
+          <IconAdd />
+        </Button>
         <FlyOut>
           <FlyOut.Toggle />
           <FlyOut.List>
@@ -71,6 +94,15 @@ const Topbar = () => {
           </Modal>,
           document.getElementById('portal'),
         )}
+      {isMobileBoardSwitcherOpen &&
+        createPortal(
+          <Modal onClose={closeMobileBoardSwitcher}>
+            <MobileBoardSwitcher
+              closeMobileBoardSwitcher={closeMobileBoardSwitcher}
+            />
+          </Modal>,
+          document.getElementById('portal'),
+        )}
     </StyledTopbar>
   );
 };
@@ -82,6 +114,11 @@ const StyledTopbar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 5rem;
+
+  @media screen and (max-width: 375px) {
+    height: 4rem;
+  }
 `;
 
 const AddNewTaskButton = styled.button`
@@ -92,6 +129,10 @@ const AddNewTaskButton = styled.button`
   padding: 1rem 1.5rem;
   border-radius: 1e3px;
   cursor: pointer;
+
+  @media screen and (max-width: 375px) {
+    display: none;
+  }
 `;
 
 export default Topbar;

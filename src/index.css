@@ -12,3 +12,13 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+.mobile-only {
+  display: none;
+}
+
+@media screen and (max-width: 375px) {
+  .mobile-only {
+    display: block;
+  }
+}
