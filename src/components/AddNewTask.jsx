@@ -144,6 +144,9 @@ const AddNewTask = ({ onClose }) => {
 
 const StyledAddNewTask = styled.div`
   padding: 2rem;
+  @media screen and (max-width: 375px) {
+    padding: 1rem;
+  }
   background-color: #2b2c37;
   border-radius: 0.5rem;
 `;
