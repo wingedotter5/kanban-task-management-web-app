@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled, { css } from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { useAppContext } from '../AppContext';
 import IconBoard from './icons/IconBoard';
 import Modal from './Modal';
 import AddNewBoard from './AddNewBoard';
@@ -11,14 +11,23 @@ import IconLogoLight from './icons/IconLogoLight';
 import Flex from './Flex';
 import BoardListItem from './BoardListItem';
 import BoardList from './BoardList';
+import { selectBoard } from '../redux/boardSlice';
 
 const Sidebar = () => {
-  const { boards, selectBoard, selectedBoardId } = useAppContext();
   const {
     isOpen,
     onOpen: showCreateBoardModal,
     onClose: closeCreateBoardModal,
   } = useDisclosure();
+
+  const dispatch = useDispatch();
+
+  const boards = useSelector((s) => s.board.boards);
+  const selectedBoardId = useSelector((s) => s.board.selectedBoardId);
+
+  const switchBoard = (id) => {
+    dispatch(selectBoard({ id }));
+  };
 
   return (
     <StyledSidebar>
@@ -35,7 +44,7 @@ const Sidebar = () => {
           <BoardListItem
             active={board.id === selectedBoardId}
             key={board.name}
-            onClick={() => selectBoard(board.id)}
+            onClick={() => switchBoard(board.id)}
             board={board}
           />
         ))}
