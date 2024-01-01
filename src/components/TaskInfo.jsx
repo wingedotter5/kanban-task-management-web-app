@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { createPortal } from 'react-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
 import Flex from './Flex';
 import FlyOut from './FlyOut';
@@ -12,20 +13,22 @@ import Button from './Button';
 import { useDisclosure } from '../hooks';
 import Modal from './Modal';
 import EditTask from './EditTask';
+import { selectedBoard, updateTask, deleteTask } from '../redux/boardSlice';
 
 const TaskInfo = ({ task, closeTaskInfoModal }) => {
   const [status, setStatus] = useState(task.status);
-  const { selectedBoardId, boards, updateTask } = useAppContext();
-  const statuses = boards
-    .find((b) => b.id === selectedBoardId)
-    .columns.map((c) => c.name);
   const [subtasks, setSubtasks] = useState(task.subtasks);
-  const subtasksRemaining = subtasks.filter((st) => st.isCompleted).length;
   const {
     isOpen: isEditTaskModalOpen,
     onOpen: showEditTaskModal,
     onClose: closeEditTaskModal,
   } = useDisclosure();
+
+  const dispatch = useDispatch();
+
+  const board = useSelector(selectedBoard);
+
+  const subtasksRemaining = subtasks.filter((st) => st.isCompleted).length;
 
   useEffect(() => {
     setSubtasks(task.subtasks);
@@ -46,6 +49,32 @@ const TaskInfo = ({ task, closeTaskInfoModal }) => {
     });
   };
 
+  const onSaveChanges = () => {
+    dispatch(
+      updateTask({
+        boardId: board.id,
+        oldColumnId: board.columns.find((c) => c.name === task.status).id,
+        newColumnId: board.columns.find((c) => c.name === status).id,
+        taskId: task.id,
+        values: {
+          status,
+          subtasks,
+        },
+      }),
+    );
+    closeTaskInfoModal();
+  };
+
+  const onDeleteTask = () => {
+    dispatch(
+      deleteTask({
+        boardId: board.id,
+        columnId: board.columns.find((c) => c.name === task.status).id,
+        taskId: task.id,
+      }),
+    );
+  };
+
   return (
     <>
       <StyledTaskInfo>
@@ -55,7 +84,7 @@ const TaskInfo = ({ task, closeTaskInfoModal }) => {
             <FlyOut.Toggle />
             <FlyOut.List>
               <FlyOut.Item onClick={showEditTaskModal}>Edit Task</FlyOut.Item>
-              <FlyOut.Item>Delete Task</FlyOut.Item>
+              <FlyOut.Item onClick={onDeleteTask}>Delete Task</FlyOut.Item>
             </FlyOut.List>
           </FlyOut>
         </Flex>
@@ -79,28 +108,16 @@ const TaskInfo = ({ task, closeTaskInfoModal }) => {
             $full
             onChange={(ev) => setStatus(ev.target.value)}
           >
-            {statuses.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            {board.columns
+              .map((c) => c.name)
+              .map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
           </Select>
         </FormControl>
-        <Button
-          $primary
-          $full
-          onClick={() => {
-            updateTask(
-              {
-                ...task,
-                status,
-                subtasks,
-              },
-              task.status,
-            );
-            closeTaskInfoModal();
-          }}
-        >
+        <Button $primary $full onClick={onSaveChanges}>
           Save Changes
         </Button>
       </StyledTaskInfo>

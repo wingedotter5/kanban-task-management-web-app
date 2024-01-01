@@ -41,22 +41,33 @@ const boardSlice = createSlice({
       thatColumn.tasks.push(task);
     },
     updateTask: (state, action) => {
-      const { boardId, columnId, taskId, values } = action.payload;
+      const { boardId, oldColumnId, newColumnId, taskId, values } =
+        action.payload;
+
       const thoseTasks = state.boards
         .find((b) => b.id === boardId)
-        .columns.find((c) => c.id === columnId).tasks;
-      const thatTaskIndex = thoseTasks.find((t) => t.id === taskId);
+        .columns.find((c) => c.id === oldColumnId).tasks;
+      const thatTaskIndex = thoseTasks.findIndex((t) => t.id === taskId);
       const updatedTask = {
         ...thoseTasks[thatTaskIndex],
         ...values,
       };
-      thoseTasks.splice(thatTaskIndex, 1, updatedTask);
+
+      if (oldColumnId !== newColumnId) {
+        thoseTasks.splice(thatTaskIndex, 1);
+        state.boards
+          .find((b) => b.id === boardId)
+          .columns.find((c) => c.id === newColumnId)
+          .tasks.push(updatedTask);
+      } else {
+        thoseTasks.splice(thatTaskIndex, 1, updatedTask);
+      }
     },
     deleteTask: (state, action) => {
       const { boardId, columnId, taskId } = action.payload;
       const thoseTasks = state.boards
         .find((b) => b.id === boardId)
-        .columns((c) => c.id === columnId).tasks;
+        .columns.find((c) => c.id === columnId).tasks;
       const thatTaskIndex = thoseTasks.findIndex((t) => t.id === taskId);
       thoseTasks.splice(thatTaskIndex, 1);
     },
