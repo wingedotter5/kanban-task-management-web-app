@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { createPortal } from 'react-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Topbar from './Topbar';
 import { useAppContext } from '../AppContext';
@@ -7,10 +8,10 @@ import Column from './Column';
 import EditBoard from './EditBoard';
 import Modal from './Modal';
 import { useDisclosure } from '../hooks';
+import { selectedBoard } from '../redux/boardSlice';
 
 const Panel = () => {
-  const { selectedBoardId, boards } = useAppContext();
-  const columns = boards.find((b) => b.id === selectedBoardId).columns;
+  const columns = useSelector(selectedBoard).columns;
   const {
     isOpen: isEditBoardModalOpen,
     onOpen: showEditBoardModal,
