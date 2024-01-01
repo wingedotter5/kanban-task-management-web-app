@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux';
 
 import FormControl from './FormControl';
 import Label from './Label';
@@ -10,15 +11,16 @@ import Flex from './Flex';
 import { uuidv4 } from '../utils';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
-import { useAppContext } from '../AppContext';
 import { emptyTask } from '../data';
 import Select from './Select';
+import { selectedBoard, updateTask } from '../redux/boardSlice';
 
 const EditTask = ({ task, closeEditTaskModal }) => {
-  const { selectedBoardId, boards, updateTask } = useAppContext();
-  const statuses = boards
-    .find((b) => b.id === selectedBoardId)
-    .columns.map((c) => c.name);
+  const dispatch = useDispatch();
+
+  const board = useSelector(selectedBoard);
+  const statuses = board.columns.map((c) => c.name);
+
   const [taskTitle, setTaskTitle] = useState(task.title);
   const [taskDescription, setTaskDescription] = useState(task.description);
   const [taskStatus, setTaskStatus] = useState(task.status);
@@ -55,19 +57,23 @@ const EditTask = ({ task, closeEditTaskModal }) => {
     setSubtasks((prevSubtasks) => prevSubtasks.filter((s) => s.id !== id));
 
   const saveTaskHandler = () => {
-    updateTask(
-      {
-        ...task,
-        title: taskTitle,
-        description: taskDescription,
-        status: taskStatus,
-        subtasks: subtasks.map((s) => {
-          const mod = { ...s };
-          delete mod.error;
-          return mod;
-        }),
-      },
-      task.status,
+    dispatch(
+      updateTask({
+        boardId: board.id,
+        oldColumnId: board.columns.find((c) => c.name === task.status).id,
+        newColumnId: board.columns.find((c) => c.name === taskStatus).id,
+        taskId: task.id,
+        values: {
+          title: taskTitle,
+          description: taskDescription,
+          status: taskStatus,
+          subtasks: subtasks.map((s) => {
+            const mod = { ...s };
+            delete mod.error;
+            return mod;
+          }),
+        },
+      }),
     );
     closeEditTaskModal();
   };

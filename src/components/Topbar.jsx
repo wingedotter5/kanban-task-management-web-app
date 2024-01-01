@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
+import { useSelector } from 'react-redux';
 
 import Flex from './Flex';
 import IconEllipsis from './icons/IconEllipsis';
-import { useAppContext } from '../AppContext';
 import Modal from './Modal';
 import AddNewTask from './AddNewTask';
 import { useDisclosure } from '../hooks';
@@ -17,10 +17,11 @@ import IconAdd from './icons/IconAdd';
 import IconLogo from './icons/IconLogo';
 import IconChevronDown from './icons/IconChevronDown';
 import MobileBoardSwitcher from './MobileBoardSwitcher';
+import { selectedBoard } from '../redux/boardSlice';
 
 const Topbar = () => {
-  const { selectedBoardId, boards } = useAppContext();
-  const selectedBoard = boards.find((b) => b.id === selectedBoardId);
+  const board = useSelector(selectedBoard);
+
   const {
     isOpen: isAddNewTaskModalOpen,
     onOpen: showAddNewTaskModal,
@@ -46,7 +47,7 @@ const Topbar = () => {
     <StyledTopbar>
       <Flex $items="center" $gap="0.5rem">
         <IconLogo className="mobile-only" />
-        <h2>{selectedBoard.name}</h2>
+        <h2>{board.name}</h2>
         <IconButton className="mobile-only" onClick={showMobileBoardSwitcher}>
           <IconChevronDown />
         </IconButton>

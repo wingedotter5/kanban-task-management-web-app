@@ -8,7 +8,6 @@ import FlyOut from './FlyOut';
 import FormControl from './FormControl';
 import Label from './Label';
 import Select from './Select';
-import { useAppContext } from '../AppContext';
 import Button from './Button';
 import { useDisclosure } from '../hooks';
 import Modal from './Modal';

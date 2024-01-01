@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Topbar from './Topbar';
-import { useAppContext } from '../AppContext';
 import Column from './Column';
 import EditBoard from './EditBoard';
 import Modal from './Modal';

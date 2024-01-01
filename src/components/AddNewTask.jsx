@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux';
 
 import FormControl from './FormControl';
 import Label from './Label';
@@ -10,15 +11,15 @@ import Flex from './Flex';
 import { uuidv4 } from '../utils';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
-import { useAppContext } from '../AppContext';
 import { emptyTask } from '../data';
 import Select from './Select';
+import { insertTask, selectedBoard } from '../redux/boardSlice';
 
 const AddNewTask = ({ onClose }) => {
-  const { selectedBoardId, boards, addNewTask } = useAppContext();
-  const statuses = boards
-    .find((b) => b.id === selectedBoardId)
-    .columns.map((c) => c.name);
+  const board = useSelector(selectedBoard);
+  const statuses = board.columns.map((c) => c.name);
+  const dispatch = useDispatch();
+
   const [taskName, setTaskName] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [taskStatus, setTaskStatus] = useState(statuses[0]);
@@ -65,18 +66,24 @@ const AddNewTask = ({ onClose }) => {
     setSubtasks((prevSubtasks) => prevSubtasks.filter((s) => s.id !== id));
 
   const createTaskHandler = () => {
-    addNewTask({
-      ...emptyTask,
-      id: uuidv4(),
-      title: taskName,
-      description: taskDescription,
-      status: taskStatus,
-      subtasks: subtasks.map((s) => {
-        const mod = { ...s };
-        delete mod.error;
-        return mod;
+    dispatch(
+      insertTask({
+        boardId: board.id,
+        columnId: board.columns.find((c) => c.name === taskStatus).id,
+        task: {
+          ...emptyTask,
+          id: uuidv4(),
+          title: taskName,
+          description: taskDescription,
+          status: taskStatus,
+          subtasks: subtasks.map((s) => {
+            const mod = { ...s };
+            delete mod.error;
+            return mod;
+          }),
+        },
       }),
-    });
+    );
     onClose();
   };
 

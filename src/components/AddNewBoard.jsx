@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux';
 
 import FormControl from './FormControl';
 import Label from './Label';
@@ -8,12 +9,11 @@ import Flex from './Flex';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
 import { uuidv4 } from '../utils';
-import { useAppContext } from '../AppContext';
 import Button from './Button';
 import { emptyBoard, emptyColumn } from '../data';
+import { insertBoard } from '../redux/boardSlice';
 
 const AddNewBoard = ({ onClose }) => {
-  const { addNewBoard } = useAppContext();
   const [boardTitle, setBoardTitle] = useState('');
   const [columns, setColumns] = useState([
     {
@@ -22,6 +22,8 @@ const AddNewBoard = ({ onClose }) => {
       error: '',
     },
   ]);
+
+  const dispatch = useDispatch();
 
   const onColumnChangeHandler = (ev, id) => {
     setColumns((prevColumns) => {
@@ -49,6 +51,24 @@ const AddNewBoard = ({ onClose }) => {
 
   const removeColumn = (id) =>
     setColumns((prevColumns) => prevColumns.filter((c) => c.id !== id));
+
+  const onCreateNewBoard = () => {
+    dispatch(
+      insertBoard({
+        board: {
+          ...emptyBoard,
+          id: uuidv4(),
+          name: boardTitle,
+          columns: columns.map((c) => ({
+            ...emptyColumn,
+            name: c.title,
+            id: c.id,
+          })),
+        },
+      }),
+    );
+    onClose();
+  };
 
   return (
     <StyledAddNewBoard>
@@ -84,23 +104,7 @@ const AddNewBoard = ({ onClose }) => {
         <Button $full onClick={addNewColumn}>
           +Add New Column
         </Button>
-        <Button
-          $full
-          $primary
-          onClick={() => {
-            addNewBoard({
-              ...emptyBoard,
-              id: uuidv4(),
-              name: boardTitle,
-              columns: columns.map((c) => ({
-                ...emptyColumn,
-                name: c.title,
-                id: c.id,
-              })),
-            });
-            onClose();
-          }}
-        >
+        <Button $full $primary onClick={onCreateNewBoard}>
           Create New Board
         </Button>
       </Flex>

@@ -1,16 +1,21 @@
 import styled from 'styled-components';
 import { createPortal } from 'react-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { useAppContext } from '../AppContext';
 import BoardList from './BoardList';
 import BoardListItem from './BoardListItem';
 import IconBoard from './icons/IconBoard';
 import AddNewBoard from './AddNewBoard';
 import { useDisclosure } from '../hooks';
 import Modal from './Modal';
+import { selectBoard } from '../redux/boardSlice';
 
 const MobileBoardSwitcher = ({ closeMobileBoardSwitcher }) => {
-  const { boards, selectedBoardId, selectBoard } = useAppContext();
+  const dispatch = useDispatch();
+
+  const boards = useSelector((s) => s.board.boards);
+  const selectedBoardId = useSelector((s) => s.board.selectedBoardId);
+
   const {
     isOpen: isAddNewBoardModalOpen,
     onOpen: showAddNewBoardModal,
@@ -34,7 +39,11 @@ const MobileBoardSwitcher = ({ closeMobileBoardSwitcher }) => {
             <BoardListItem
               key={b.id}
               onClick={() => {
-                selectBoard(b.id);
+                dispatch(
+                  selectBoard({
+                    id: b.id,
+                  }),
+                );
                 closeMobileBoardSwitcher();
               }}
               board={b}

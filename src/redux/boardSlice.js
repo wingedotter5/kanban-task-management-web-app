@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { initialBoards } from '../data';
+import { initialBoards, emptyBoard } from '../data';
+import { uuidv4 } from '../utils';
 
 const initialState = {
   boards: initialBoards,
@@ -15,12 +16,13 @@ const boardSlice = createSlice({
     },
     insertBoard: (state, action) => {
       state.boards.push(action.payload.board);
+      state.selectedBoardId = action.payload.board.id;
     },
     updateBoard: (state, action) => {
       const thatBoardIndex = state.boards.findIndex(
-        (b = b.id === action.payload.id),
+        (b) => b.id === action.payload.id,
       );
-      const thatBoard = state[thatBoardIndex];
+      const thatBoard = state.boards[thatBoardIndex];
       const updatedBoard = {
         ...thatBoard,
         ...action.payload.values,
@@ -28,10 +30,20 @@ const boardSlice = createSlice({
       state.boards.splice(thatBoardIndex, 1, updatedBoard);
     },
     deleteBoard: (state, action) => {
-      const thatBoardIndex = state.boards.find(
+      const thatBoardIndex = state.boards.findIndex(
         (b) => b.id === action.payload.id,
       );
       state.boards.splice(thatBoardIndex, 1);
+
+      if (state.boards.length < 1) {
+        const newBoard = {
+          ...emptyBoard,
+          id: uuidv4(),
+          name: 'Untitled',
+        };
+        state.boards.push(newBoard);
+      }
+      state.selectedBoardId = state.boards[0].id;
     },
     insertTask: (state, action) => {
       const { boardId, columnId, task } = action.payload;

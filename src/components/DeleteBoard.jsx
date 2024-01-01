@@ -1,25 +1,27 @@
 import styled from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { useAppContext } from '../AppContext';
 import Button from './Button';
 import Flex from './Flex';
+import { deleteBoard, selectedBoard } from '../redux/boardSlice';
 
 const DeleteBoard = ({ closeDeleteBoardModal }) => {
-  const { selectedBoardId, boards, deleteSelectedBoard } = useAppContext();
-  const selectedBoard = boards.find((b) => b.id === selectedBoardId);
+  const dispatch = useDispatch();
+
+  const board = useSelector(selectedBoard);
 
   return (
     <StyledDeleteBoard>
       <h3>Delete this board?</h3>
       <p>
-        Are you sure you want to delete the "{selectedBoard.name}" board? This
-        action will remove all columns and tasks and cannot be reversed.
+        Are you sure you want to delete the "{board.name}" board? This action
+        will remove all columns and tasks and cannot be reversed.
       </p>
       <Flex $gap="1rem">
         <DeleteButton
           $full
           onClick={() => {
-            deleteSelectedBoard();
+            dispatch(deleteBoard({ id: board.id }));
             closeDeleteBoardModal();
           }}
         >

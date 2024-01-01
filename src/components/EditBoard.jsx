@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux';
 
 import FormControl from './FormControl';
 import Label from './Label';
@@ -9,13 +10,14 @@ import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
 import Button from './Button';
 import { emptyColumn } from '../data';
-import { useAppContext } from '../AppContext';
+import { selectedBoard, updateBoard } from '../redux/boardSlice';
 
 const EditBoard = ({ closeEditBoardModal }) => {
-  const { updateBoard, selectedBoardId, boards } = useAppContext();
-  const selectedBoard = boards.find((b) => b.id === selectedBoardId);
-  const [boardName, setBoardName] = useState(selectedBoard.name);
-  const [columns, setColumns] = useState(selectedBoard.columns);
+  const dispatch = useDispatch();
+  const board = useSelector(selectedBoard);
+
+  const [boardName, setBoardName] = useState(board.name);
+  const [columns, setColumns] = useState(board.columns);
 
   const onBoardNameChangeHandler = (ev) => {
     setBoardName(ev.target.value);
@@ -43,12 +45,15 @@ const EditBoard = ({ closeEditBoardModal }) => {
     setColumns((prevColumns) => prevColumns.filter((c) => c.id !== id));
 
   const onSaveChanges = () => {
-    const selectedBoard = boards.find((b) => b.id === selectedBoardId);
-    updateBoard({
-      ...selectedBoard,
-      name: boardName,
-      columns,
-    });
+    dispatch(
+      updateBoard({
+        id: board.id,
+        values: {
+          name: boardName,
+          columns,
+        },
+      }),
+    );
     closeEditBoardModal();
   };
 
