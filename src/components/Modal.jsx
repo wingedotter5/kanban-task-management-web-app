@@ -17,7 +17,7 @@ const ModalBody = styled.div`
   width: 100%;
   max-width: 500px;
 
-  @media screen and (max-width: 375px) {
+  @media screen and (max-width: 425px) {
     width: 90%;
   }
 `;

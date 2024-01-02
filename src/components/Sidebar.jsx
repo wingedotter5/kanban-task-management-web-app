@@ -64,7 +64,7 @@ const StyledSidebar = styled.aside`
   background-color: #2b2c37;
   width: 16rem;
 
-  @media screen and (max-width: 375px) {
+  @media screen and (max-width: 425px) {
     display: none;
   }
 `;

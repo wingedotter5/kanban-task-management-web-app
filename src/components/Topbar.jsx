@@ -117,7 +117,7 @@ const StyledTopbar = styled.div`
   align-items: center;
   height: 5rem;
 
-  @media screen and (max-width: 375px) {
+  @media screen and (max-width: 425px) {
     height: 4rem;
   }
 `;
@@ -131,7 +131,7 @@ const AddNewTaskButton = styled.button`
   border-radius: 1e3px;
   cursor: pointer;
 
-  @media screen and (max-width: 375px) {
+  @media screen and (max-width: 425px) {
     display: none;
   }
 `;

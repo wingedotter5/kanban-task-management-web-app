@@ -53,13 +53,13 @@ const GridContainer = styled.div`
   overflow-x: auto;
   min-height: calc(100vh - 5rem);
 
-  @media screen and (min-width: 375px) {
+  @media screen and (min-width: 425px) {
     &::-webkit-scrollbar {
       display: none;
     }
   }
 
-  @media screen and (max-width: 375px) {
+  @media screen and (max-width: 425px) {
     min-height: calc(100vh - 4rem);
   }
 `;
