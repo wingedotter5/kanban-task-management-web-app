@@ -114,7 +114,7 @@ const AddNewBoard = ({ onClose }) => {
 
 const StyledAddNewBoard = styled.div`
   padding: 2rem;
-  @media screen and (max-width: 425px) {
+  @media screen and (max-width: 640px) {
     padding: 1rem;
   }
   background-color: #2b2c37;
