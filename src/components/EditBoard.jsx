@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 
 import FormControl from './FormControl';
-import Label from './Label';
-import Input from './Input';
 import Flex from './Flex';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
@@ -61,12 +59,15 @@ const EditBoard = ({ closeEditBoardModal }) => {
     <StyledEditBoard>
       <Title>Edit Board</Title>
       <FormControl>
-        <Label>Board Name</Label>
-        <FormControl.Input value={boardName} onChange={onBoardNameChangeHandler} />
+        <FormControl.Label>Board Name</FormControl.Label>
+        <FormControl.Input
+          value={boardName}
+          onChange={onBoardNameChangeHandler}
+        />
       </FormControl>
       {columns.length > 0 && (
         <FormControl>
-          <Label>Board Columns</Label>
+          <FormControl.Label>Board Columns</FormControl.Label>
           <Flex $gap="1rem" $dir="column">
             {columns.map((column) => (
               <Flex key={column.id} $gap="1rem" $items="center">

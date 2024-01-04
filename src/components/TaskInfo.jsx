@@ -6,7 +6,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import Flex from './Flex';
 import FlyOut from './FlyOut';
 import FormControl from './FormControl';
-import Label from './Label';
 import Select from './Select';
 import Button from './Button';
 import { useDisclosure } from '../hooks';
@@ -101,7 +100,7 @@ const TaskInfo = ({ task, closeTaskInfoModal }) => {
           </Subtask>
         ))}
         <FormControl>
-          <Label>Current Status</Label>
+          <FormControl.Label>Current Status</FormControl.Label>
           <Select
             value={status}
             $full

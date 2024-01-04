@@ -3,9 +3,6 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 
 import FormControl from './FormControl';
-import Label from './Label';
-import Input from './Input';
-import Textarea from './Textarea';
 import Button from './Button';
 import Flex from './Flex';
 import { uuidv4 } from '../utils';
@@ -82,7 +79,7 @@ const EditTask = ({ task, closeEditTaskModal }) => {
     <StyledAddNewTask>
       <Title>Edit Task</Title>
       <FormControl>
-        <Label>Task Name</Label>
+        <FormControl.Label>Task Name</FormControl.Label>
         <FormControl.Input
           value={taskTitle}
           onChange={(ev) => setTaskTitle(ev.target.value)}
@@ -90,7 +87,7 @@ const EditTask = ({ task, closeEditTaskModal }) => {
         />
       </FormControl>
       <FormControl>
-        <Label>Description</Label>
+        <FormControl.Label>Description</FormControl.Label>
         <FormControl.Textarea
           value={taskDescription}
           onChange={(ev) => setTaskDescription(ev.target.value)}
@@ -99,7 +96,7 @@ const EditTask = ({ task, closeEditTaskModal }) => {
         ></FormControl.Textarea>
       </FormControl>
       <FormControl>
-        <Label>Subtasks</Label>
+        <FormControl.Label>Subtasks</FormControl.Label>
         <Flex $dir="column" $gap="1rem">
           {subtasks.map((subtask) => (
             <Flex $items="center" $gap="1rem" key={subtask.id}>
@@ -119,7 +116,7 @@ const EditTask = ({ task, closeEditTaskModal }) => {
           +Add New Subtask
         </Button>
         <FormControl style={{ marginBottom: 0 }}>
-          <Label>Current Status</Label>
+          <FormControl.Label>Current Status</FormControl.Label>
           <Select
             $full
             value={taskStatus}

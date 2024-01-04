@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 
 import FormControl from './FormControl';
-import Label from './Label';
-import Input from './Input';
 import Flex from './Flex';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
@@ -74,7 +72,7 @@ const AddNewBoard = ({ onClose }) => {
     <StyledAddNewBoard>
       <Title>Add new Board</Title>
       <FormControl>
-        <Label>Board Name</Label>
+        <FormControl.Label>Board Name</FormControl.Label>
         <FormControl.Input
           value={boardTitle}
           onChange={(ev) => setBoardTitle(ev.target.value)}
@@ -83,7 +81,7 @@ const AddNewBoard = ({ onClose }) => {
       </FormControl>
       {columns.length > 0 && (
         <FormControl>
-          <Label>Board Columns</Label>
+          <FormControl.Label>Board Columns</FormControl.Label>
           <Flex $dir="column" $gap="1rem">
             {columns.map((column) => (
               <Flex $items="center" $gap="1rem" key={column.id}>
