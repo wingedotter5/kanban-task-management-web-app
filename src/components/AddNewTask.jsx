@@ -92,7 +92,7 @@ const AddNewTask = ({ onClose }) => {
       <Title>Add New Task</Title>
       <FormControl>
         <Label>Task Name</Label>
-        <Input
+        <FormControl.Input
           onChange={(ev) => setTaskName(ev.target.value)}
           placeholder="e.g. Take coffee break"
           value={taskName}
@@ -100,19 +100,19 @@ const AddNewTask = ({ onClose }) => {
       </FormControl>
       <FormControl>
         <Label>Description</Label>
-        <Textarea
+        <FormControl.Textarea
           onChange={(ev) => setTaskDescription(ev.target.value)}
           rows="5"
           placeholder="e.g. It's always good to take a break. This 15 minute break will recharge the batteries a little."
           value={taskDescription}
-        ></Textarea>
+        ></FormControl.Textarea>
       </FormControl>
       <FormControl>
         <Label>Subtasks</Label>
         <Flex $dir="column" $gap="1rem">
           {subtasks.map((subtask) => (
             <Flex $items="center" $gap="1rem" key={subtask.id}>
-              <Input
+              <FormControl.Input
                 value={subtask.title}
                 onChange={(ev) => onSubtaskChangeHandler(ev, subtask.id)}
               />

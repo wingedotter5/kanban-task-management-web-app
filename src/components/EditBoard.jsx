@@ -62,7 +62,7 @@ const EditBoard = ({ closeEditBoardModal }) => {
       <Title>Edit Board</Title>
       <FormControl>
         <Label>Board Name</Label>
-        <Input value={boardName} onChange={onBoardNameChangeHandler} />
+        <FormControl.Input value={boardName} onChange={onBoardNameChangeHandler} />
       </FormControl>
       {columns.length > 0 && (
         <FormControl>
@@ -70,7 +70,7 @@ const EditBoard = ({ closeEditBoardModal }) => {
           <Flex $gap="1rem" $dir="column">
             {columns.map((column) => (
               <Flex key={column.id} $gap="1rem" $items="center">
-                <Input
+                <FormControl.Input
                   value={column.name}
                   onChange={(ev) => onColumnChangeHandler(ev, column.id)}
                 />

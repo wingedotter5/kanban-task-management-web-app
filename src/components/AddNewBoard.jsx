@@ -75,7 +75,7 @@ const AddNewBoard = ({ onClose }) => {
       <Title>Add new Board</Title>
       <FormControl>
         <Label>Board Name</Label>
-        <Input
+        <FormControl.Input
           value={boardTitle}
           onChange={(ev) => setBoardTitle(ev.target.value)}
           placeholder="e.g. Web Design"
@@ -87,7 +87,7 @@ const AddNewBoard = ({ onClose }) => {
           <Flex $dir="column" $gap="1rem">
             {columns.map((column) => (
               <Flex $items="center" $gap="1rem" key={column.id}>
-                <Input
+                <FormControl.Input
                   value={column.title}
                   onChange={(ev) => onColumnChangeHandler(ev, column.id)}
                 />
