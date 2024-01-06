@@ -74,36 +74,35 @@ const Topbar = () => {
           </FlyOut.List>
         </FlyOut>
       </Flex>
-      {isAddNewTaskModalOpen &&
-        createPortal(
-          <Modal onClose={closeAddNewTaskModal}>
-            <AddNewTask onClose={closeAddNewTaskModal} />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
-      {isEditBoardModalOpen &&
-        createPortal(
-          <Modal onClose={closeEditBoardModal}>
-            <EditBoard closeEditBoardModal={closeEditBoardModal} />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
-      {isDeleteBoardModalOpen &&
-        createPortal(
-          <Modal onClose={closeDeleteBoardModal}>
-            <DeleteBoard closeDeleteBoardModal={closeDeleteBoardModal} />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
-      {isMobileBoardSwitcherOpen &&
-        createPortal(
-          <Modal onClose={closeMobileBoardSwitcher}>
-            <MobileBoardSwitcher
-              closeMobileBoardSwitcher={closeMobileBoardSwitcher}
-            />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
+      {createPortal(
+        <Modal onClose={closeAddNewTaskModal} isOpen={isAddNewTaskModalOpen}>
+          <AddNewTask onClose={closeAddNewTaskModal} />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
+      {createPortal(
+        <Modal onClose={closeEditBoardModal} isOpen={isEditBoardModalOpen}>
+          <EditBoard closeEditBoardModal={closeEditBoardModal} />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
+      {createPortal(
+        <Modal onClose={closeDeleteBoardModal} isOpen={isDeleteBoardModalOpen}>
+          <DeleteBoard closeDeleteBoardModal={closeDeleteBoardModal} />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
+      {createPortal(
+        <Modal
+          onClose={closeMobileBoardSwitcher}
+          isOpen={isMobileBoardSwitcherOpen}
+        >
+          <MobileBoardSwitcher
+            closeMobileBoardSwitcher={closeMobileBoardSwitcher}
+          />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
     </StyledTopbar>
   );
 };

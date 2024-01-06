@@ -1,6 +1,7 @@
 import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const Overlay = styled.div`
+const Overlay = styled(motion.div)`
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +14,7 @@ const Overlay = styled.div`
   overflow-x: auto;
 `;
 
-const ModalBody = styled.div`
+const ModalBody = styled(motion.div)`
   width: 100%;
   max-width: 500px;
 
@@ -22,17 +23,50 @@ const ModalBody = styled.div`
   }
 `;
 
-const Modal = ({ children, onClose }) => {
+const zoomIn = {
+  hidden: {
+    scale: 0,
+    opacity: 0,
+  },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      duration: 0.1,
+      type: 'spring',
+      damping: 25,
+      stiffness: 500,
+    },
+  },
+  exit: {
+    scale: 0,
+    opacity: 0,
+  },
+};
+
+const Modal = ({ children, onClose, isOpen }) => {
   return (
-    <Overlay onClick={onClose}>
-      <ModalBody
-        onClick={(ev) => {
-          ev.stopPropagation();
-        }}
-      >
-        {children}
-      </ModalBody>
-    </Overlay>
+    <AnimatePresence
+      initial={false}
+      mode="wait"
+      // onExitComplete={() => null}
+    >
+      {isOpen ? (
+        <Overlay onClick={onClose}>
+          <ModalBody
+            onClick={(ev) => {
+              ev.stopPropagation();
+            }}
+            variants={zoomIn}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            {children}
+          </ModalBody>
+        </Overlay>
+      ) : null}
+    </AnimatePresence>
   );
 };
 

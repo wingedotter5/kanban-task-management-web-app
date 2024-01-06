@@ -49,13 +49,12 @@ const Sidebar = () => {
           />
         ))}
       </BoardList>
-      {isOpen &&
-        createPortal(
-          <Modal onClose={closeCreateBoardModal}>
-            <AddNewBoard onClose={closeCreateBoardModal} />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
+      {createPortal(
+        <Modal onClose={closeCreateBoardModal} isOpen={isOpen}>
+          <AddNewBoard onClose={closeCreateBoardModal} />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
     </StyledSidebar>
   );
 };

@@ -28,13 +28,12 @@ const Panel = () => {
           + New Column
         </NewColumnButton>
       </GridContainer>
-      {isEditBoardModalOpen &&
-        createPortal(
-          <Modal onClose={closeEditBoardModal}>
-            <EditBoard closeEditBoardModal={closeEditBoardModal} />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
+      {createPortal(
+        <Modal onClose={closeEditBoardModal} isOpen={isEditBoardModalOpen}>
+          <EditBoard closeEditBoardModal={closeEditBoardModal} />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
     </StyledPanel>
   );
 };

@@ -19,13 +19,12 @@ const Task = ({ task }) => {
         <h4>{task.title}</h4>
         <div>{`${subtasksRemaining} of ${task.subtasks.length} subtasks`}</div>
       </StyledTask>
-      {isTaskInfoModalOpen &&
-        createPortal(
-          <Modal onClose={closeTaskInfoModal}>
-            <TaskInfo task={task} closeTaskInfoModal={closeTaskInfoModal} />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
+      {createPortal(
+        <Modal onClose={closeTaskInfoModal} isOpen={isTaskInfoModalOpen}>
+          <TaskInfo task={task} closeTaskInfoModal={closeTaskInfoModal} />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
     </>
   );
 };

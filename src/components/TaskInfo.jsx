@@ -119,13 +119,12 @@ const TaskInfo = ({ task, closeTaskInfoModal }) => {
           Save Changes
         </Button>
       </StyledTaskInfo>
-      {isEditTaskModalOpen &&
-        createPortal(
-          <Modal onClose={closeEditTaskModal}>
-            <EditTask task={task} closeEditTaskModal={closeEditTaskModal} />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
+      {createPortal(
+        <Modal onClose={closeEditTaskModal} isOpen={isEditTaskModalOpen}>
+          <EditTask task={task} closeEditTaskModal={closeEditTaskModal} />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
     </>
   );
 };

@@ -52,13 +52,12 @@ const MobileBoardSwitcher = ({ closeMobileBoardSwitcher }) => {
           ))}
         </BoardList>
       </StyledMobileBoardSwitcher>
-      {isAddNewBoardModalOpen &&
-        createPortal(
-          <Modal onClose={closeAddNewBoardModal}>
-            <AddNewBoard onClose={closeAddNewBoardModal} />
-          </Modal>,
-          document.getElementById('portal'),
-        )}
+      {createPortal(
+        <Modal onClose={closeAddNewBoardModal} isOpen={isAddNewBoardModalOpen}>
+          <AddNewBoard onClose={closeAddNewBoardModal} />
+        </Modal>,
+        document.getElementById('portal'),
+      )}
     </>
   );
 };
