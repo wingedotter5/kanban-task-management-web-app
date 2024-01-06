@@ -66,6 +66,7 @@ const StyledList = styled.ul`
 const StyledItem = styled.li`
   cursor: pointer;
   white-space: nowrap;
+  padding: 0.25rem 0.5rem;
 `;
 
 FlyOut.Toggle = Toggle;
