@@ -15,7 +15,19 @@ const Task = ({ task }) => {
 
   return (
     <>
-      <StyledTask onClick={showTaskInfoModal}>
+      <StyledTask
+        onClick={showTaskInfoModal}
+        draggable={true}
+        onDragStart={(e) => {
+          e.dataTransfer.setData(
+            'transfer',
+            JSON.stringify({
+              taskId: task.id,
+              taskStatus: task.status,
+            }),
+          );
+        }}
+      >
         <h4>{task.title}</h4>
         <div>{`${subtasksRemaining} of ${task.subtasks.length} subtasks`}</div>
       </StyledTask>

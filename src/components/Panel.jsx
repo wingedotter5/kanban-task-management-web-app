@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { createPortal } from 'react-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import Topbar from './Topbar';
 import Column from './Column';

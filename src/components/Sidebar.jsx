@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
 import IconBoard from './icons/IconBoard';
@@ -43,7 +42,7 @@ const Sidebar = () => {
         {boards.map((board) => (
           <BoardListItem
             active={board.id === selectedBoardId}
-            key={board.name}
+            key={board.id}
             onClick={() => switchBoard(board.id)}
             board={board}
           />

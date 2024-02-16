@@ -8,7 +8,6 @@ import Flex from './Flex';
 import { uuidv4 } from '../utils';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
-import { emptyTask } from '../data';
 import Select from './Select';
 import { selectedBoard, updateTask } from '../redux/boardSlice';
 

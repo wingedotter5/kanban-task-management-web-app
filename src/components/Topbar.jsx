@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 
 import Flex from './Flex';
-import IconEllipsis from './icons/IconEllipsis';
 import Modal from './Modal';
 import AddNewTask from './AddNewTask';
 import { useDisclosure } from '../hooks';

@@ -65,6 +65,7 @@ const boardSlice = createSlice({
         ...values,
       };
 
+      // If different columns, remove from the old column and append to the new column.
       if (oldColumnId !== newColumnId) {
         thoseTasks.splice(thatTaskIndex, 1);
         state.boards
@@ -72,6 +73,7 @@ const boardSlice = createSlice({
           .columns.find((c) => c.id === newColumnId)
           .tasks.push(updatedTask);
       } else {
+        // If same column, replace the updated task with the old one.
         thoseTasks.splice(thatTaskIndex, 1, updatedTask);
       }
     },
