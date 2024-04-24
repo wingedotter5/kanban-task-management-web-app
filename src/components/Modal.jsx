@@ -54,8 +54,8 @@ const Modal = ({ children, onClose, isOpen }) => {
       {isOpen ? (
         <Overlay onClick={onClose}>
           <ModalBody
-            onClick={(ev) => {
-              ev.stopPropagation();
+            onClick={(event) => {
+              event.stopPropagation();
             }}
             variants={zoomIn}
             initial="hidden"

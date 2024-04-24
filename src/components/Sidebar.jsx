@@ -1,56 +1,89 @@
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
+import { useQuery } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
 
 import IconBoard from './icons/IconBoard';
 import Modal from './Modal';
 import AddNewBoard from './AddNewBoard';
 import { useDisclosure } from '../hooks';
 import IconLogoLight from './icons/IconLogoLight';
-import Flex from './Flex';
 import BoardListItem from './BoardListItem';
 import BoardList from './BoardList';
-import { selectBoard } from '../redux/boardSlice';
+import { useAppContext } from '../AppContext';
+import { GET_BOARDS } from '../queries';
+import Loader from './Loader';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const {
     isOpen,
-    onOpen: showCreateBoardModal,
-    onClose: closeCreateBoardModal,
+    onOpen: showAddNewBoardModal,
+    onClose: closeAddNewBoardModal,
   } = useDisclosure();
+  const { currentBoardId, setCurrentBoardId, currentUser, setCurrentUser } =
+    useAppContext();
+  const { client, data, loading, error } = useQuery(GET_BOARDS, {
+    onCompleted({ getBoards }) {
+      if (getBoards.length > 0) {
+        setCurrentBoardId(getBoards[0].id);
+      }
+    },
+  });
 
-  const dispatch = useDispatch();
-
-  const boards = useSelector((s) => s.board.boards);
-  const selectedBoardId = useSelector((s) => s.board.selectedBoardId);
+  if (error) return <h1>Error</h1>;
 
   const switchBoard = (id) => {
-    dispatch(selectBoard({ id }));
+    setCurrentBoardId(id);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('currenUser');
+    setCurrentBoardId(null);
+    setCurrentUser(null);
+    client.clearStore();
+    navigate('/kanban-task-management-web-app/login', { replace: true });
   };
 
   return (
     <StyledSidebar>
-      <Flex $items="center" style={{ height: '5rem', padding: '1rem' }}>
-        <IconLogoLight />
-      </Flex>
-      <Info>All Boards ({boards.length})</Info>
-      <CreateNewBoardButton onClick={showCreateBoardModal}>
-        <IconBoard />
-        +Create New Board
-      </CreateNewBoardButton>
-      <BoardList>
-        {boards.map((board) => (
-          <BoardListItem
-            active={board.id === selectedBoardId}
-            key={board.id}
-            onClick={() => switchBoard(board.id)}
-            board={board}
-          />
-        ))}
-      </BoardList>
+      <header>
+        <div className="flex h-20 items-center p-4">
+          <IconLogoLight />
+        </div>
+        <Info>All Boards ({data?.getBoards?.length || 0})</Info>
+        <CreateNewBoardButton onClick={showAddNewBoardModal}>
+          <IconBoard />
+          +Create New Board
+        </CreateNewBoardButton>
+      </header>
+      {loading ? (
+        <div className="flex h-full w-full items-center justify-center">
+          <Loader $size="40px" />
+        </div>
+      ) : (
+        <>
+          <BoardList>
+            {data.getBoards.map((board) => (
+              <BoardListItem
+                active={board.id === currentBoardId}
+                key={board.id}
+                onClick={() => switchBoard(board.id)}
+                board={board}
+              />
+            ))}
+          </BoardList>
+        </>
+      )}
+      <footer className="p-4">
+        <button onClick={logout} className="text-white">
+          {`Logout (${currentUser?.username})`}
+        </button>
+      </footer>
       {createPortal(
-        <Modal onClose={closeCreateBoardModal} isOpen={isOpen}>
-          <AddNewBoard onClose={closeCreateBoardModal} />
+        <Modal onClose={closeAddNewBoardModal} isOpen={isOpen}>
+          <AddNewBoard closeAddNewBoardModal={closeAddNewBoardModal} />
         </Modal>,
         document.getElementById('portal'),
       )}
@@ -60,7 +93,13 @@ const Sidebar = () => {
 
 const StyledSidebar = styled.aside`
   background-color: #2b2c37;
-  width: 16rem;
+  border-right: 1px solid #444;
+  min-width: 20rem;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 
   @media screen and (max-width: 640px) {
     display: none;

@@ -1,36 +1,58 @@
 import styled from 'styled-components';
 import { createPortal } from 'react-dom';
-import { useSelector } from 'react-redux';
+import { useQuery } from '@apollo/client';
 
 import Topbar from './Topbar';
 import Column from './Column';
 import EditBoard from './EditBoard';
 import Modal from './Modal';
 import { useDisclosure } from '../hooks';
-import { selectedBoard } from '../redux/boardSlice';
+import { useAppContext } from '../AppContext';
+import { GET_BOARD } from '../queries';
+import Loader from './Loader';
 
 const Panel = () => {
-  const columns = useSelector(selectedBoard).columns;
   const {
     isOpen: isEditBoardModalOpen,
     onOpen: showEditBoardModal,
     onClose: closeEditBoardModal,
   } = useDisclosure();
+  const { currentBoardId } = useAppContext();
+  const { data, loading } = useQuery(GET_BOARD, {
+    variables: {
+      id: currentBoardId,
+    },
+    skip: !currentBoardId,
+  });
 
   return (
     <StyledPanel>
-      <Topbar />
-      <GridContainer>
-        {columns.map((column) => (
-          <Column column={column} key={column.id} />
-        ))}
-        <NewColumnButton onClick={showEditBoardModal}>
-          + New Column
-        </NewColumnButton>
-      </GridContainer>
+      <Topbar currentBoard={data?.getBoard} />
+      {loading && (
+        <div className="flex h-[calc(100vh-4rem)] w-full items-center justify-center sm:h-[calc(100vh-5rem)]">
+          <Loader $size="40px" />
+        </div>
+      )}
+      {!loading && currentBoardId ? (
+        <GridContainer>
+          {data.getBoard.columns.map((column) => (
+            <Column
+              key={column.id}
+              currentBoard={data.getBoard}
+              column={column}
+            />
+          ))}
+          <NewColumnButton onClick={showEditBoardModal}>
+            + New Column
+          </NewColumnButton>
+        </GridContainer>
+      ) : null}
       {createPortal(
         <Modal onClose={closeEditBoardModal} isOpen={isEditBoardModalOpen}>
-          <EditBoard closeEditBoardModal={closeEditBoardModal} />
+          <EditBoard
+            currentBoard={data?.getBoard}
+            closeEditBoardModal={closeEditBoardModal}
+          />
         </Modal>,
         document.getElementById('portal'),
       )}
@@ -39,7 +61,7 @@ const Panel = () => {
 };
 
 const StyledPanel = styled.div`
-  overflow: hidden;
+  overflow-x: hidden;
 `;
 
 const GridContainer = styled.div`
@@ -51,12 +73,6 @@ const GridContainer = styled.div`
   padding: 1rem;
   overflow-x: auto;
   min-height: calc(100vh - 5rem);
-
-  @media screen and (min-width: 640px) {
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
 
   @media screen and (max-width: 640px) {
     min-height: calc(100vh - 4rem);

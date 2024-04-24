@@ -1,18 +1,24 @@
-import { useState, createContext, useContext } from 'react';
+import { useState, createContext, useContext, useRef } from 'react';
 import styled from 'styled-components';
 
 import IconButton from './IconButton';
 import IconEllipsis from './icons/IconEllipsis';
+import { useClickOutside } from '../hooks';
 
 const FlyOutContext = createContext();
 
 const FlyOut = ({ children }) => {
   const [open, setOpen] = useState(false);
+  const ref = useRef();
 
   const toggle = () => setOpen((value) => !value);
 
+  useClickOutside(ref, () => {
+    setOpen(false);
+  });
+
   return (
-    <StyledFlyOut>
+    <StyledFlyOut ref={ref}>
       <FlyOutContext.Provider value={{ toggle, open }}>
         {children}
       </FlyOutContext.Provider>
@@ -22,8 +28,12 @@ const FlyOut = ({ children }) => {
 
 const Toggle = () => {
   const { toggle } = useContext(FlyOutContext);
+
   return (
-    <IconButton onClick={toggle}>
+    <IconButton
+      className="flex w-4 items-center justify-center"
+      onClick={toggle}
+    >
       <IconEllipsis />
     </IconButton>
   );
@@ -31,7 +41,8 @@ const Toggle = () => {
 
 const List = ({ children }) => {
   const { open } = useContext(FlyOutContext);
-  return open && <StyledList>{children}</StyledList>;
+
+  return open ? <StyledList>{children}</StyledList> : null;
 };
 
 const Item = ({ children, onClick }) => {

@@ -1,51 +1,48 @@
 import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { useMutation } from '@apollo/client';
 
-import Flex from './Flex';
 import Task from './Task';
-import { selectedBoard, updateTask } from '../redux/boardSlice';
+import { EDIT_TASK, GET_BOARD } from '../queries';
 
-const Column = ({ column }) => {
-  const dispatch = useDispatch();
-  const board = useSelector(selectedBoard);
+const Column = ({ currentBoard, column }) => {
+  const [editTaskMutation] = useMutation(EDIT_TASK, {
+    refetchQueries: [
+      {
+        query: GET_BOARD,
+        variables: {
+          id: currentBoard.id,
+        },
+      },
+    ],
+  });
 
   return (
     <StyledColumn
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
-        e.preventDefault();
-        const { taskId, taskStatus } = JSON.parse(
-          e.dataTransfer.getData('transfer'),
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => {
+        event.preventDefault();
+        const { taskId, columnId } = JSON.parse(
+          event.dataTransfer.getData('transfer'),
         );
-        const boardId = board.id;
-        const oldColumnId = board.columns.find((c) => c.name === taskStatus).id;
-        const newColumnId = board.columns.find(
-          (c) => c.name === column.name,
-        ).id;
 
-        if (oldColumnId === newColumnId) {
+        if (columnId === column.id) {
           return;
         }
 
-        dispatch(
-          updateTask({
-            boardId,
-            oldColumnId,
-            newColumnId,
-            taskId,
-            values: {
-              status: column.name,
-            },
-          }),
-        );
+        editTaskMutation({
+          variables: {
+            id: taskId,
+            columnId: column.id,
+          },
+        });
       }}
     >
       <ColumnHeader>{`${column.name} (${column.tasks.length})`}</ColumnHeader>
-      <Flex $dir="column" $gap="1rem">
+      <div className="flex flex-col gap-4">
         {column.tasks.map((task) => {
-          return <Task key={task.id} task={task} />;
+          return <Task key={task.id} task={task} currentBoard={currentBoard} />;
         })}
-      </Flex>
+      </div>
     </StyledColumn>
   );
 };

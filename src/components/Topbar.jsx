@@ -1,8 +1,6 @@
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 
-import Flex from './Flex';
 import Modal from './Modal';
 import AddNewTask from './AddNewTask';
 import { useDisclosure } from '../hooks';
@@ -15,11 +13,8 @@ import IconAdd from './icons/IconAdd';
 import IconLogo from './icons/IconLogo';
 import IconChevronDown from './icons/IconChevronDown';
 import MobileBoardSwitcher from './MobileBoardSwitcher';
-import { selectedBoard } from '../redux/boardSlice';
 
-const Topbar = () => {
-  const board = useSelector(selectedBoard);
-
+const Topbar = ({ currentBoard }) => {
   const {
     isOpen: isAddNewTaskModalOpen,
     onOpen: showAddNewTaskModal,
@@ -43,50 +38,65 @@ const Topbar = () => {
 
   return (
     <StyledTopbar>
-      <Flex $items="center" $gap="0.5rem">
-        <IconLogo className="mobile-only" />
-        <h2>{board.name}</h2>
-        <IconButton className="mobile-only" onClick={showMobileBoardSwitcher}>
+      <div className="flex items-center gap-2">
+        <IconLogo className="sm:hidden" />
+        <h2 className="text-2xl font-bold text-white">{currentBoard?.name}</h2>
+        <IconButton className="sm:hidden" onClick={showMobileBoardSwitcher}>
           <IconChevronDown />
         </IconButton>
-      </Flex>
-      <Flex $gap="1rem" $items="center">
-        <AddNewTaskButton onClick={showAddNewTaskModal}>
-          +Add New Task
-        </AddNewTaskButton>
-        <Button
-          onClick={showAddNewTaskModal}
-          $primary
-          style={{ padding: '0.5rem 1rem' }}
-          className="mobile-only"
-        >
-          <IconAdd />
-        </Button>
-        <FlyOut>
-          <FlyOut.Toggle />
-          <FlyOut.List>
-            <FlyOut.Item onClick={showEditBoardModal}>Edit board</FlyOut.Item>
-            <FlyOut.Item onClick={showDeleteBoardModal}>
-              Delete board
-            </FlyOut.Item>
-          </FlyOut.List>
-        </FlyOut>
-      </Flex>
+      </div>
+      {currentBoard ? (
+        <div className="flex items-center gap-4">
+          <AddNewTaskButton
+            className="hidden sm:block"
+            onClick={showAddNewTaskModal}
+          >
+            +Add New Task
+          </AddNewTaskButton>
+          <div className="sm:hidden">
+            <Button
+              $primary
+              onClick={showAddNewTaskModal}
+              className="px-4 py-2"
+            >
+              <IconAdd />
+            </Button>
+          </div>
+          <FlyOut>
+            <FlyOut.Toggle />
+            <FlyOut.List>
+              <FlyOut.Item onClick={showEditBoardModal}>Edit board</FlyOut.Item>
+              <FlyOut.Item onClick={showDeleteBoardModal}>
+                Delete board
+              </FlyOut.Item>
+            </FlyOut.List>
+          </FlyOut>
+        </div>
+      ) : null}
       {createPortal(
         <Modal onClose={closeAddNewTaskModal} isOpen={isAddNewTaskModalOpen}>
-          <AddNewTask onClose={closeAddNewTaskModal} />
+          <AddNewTask
+            closeAddNewTaskModal={closeAddNewTaskModal}
+            currentBoard={currentBoard}
+          />
         </Modal>,
         document.getElementById('portal'),
       )}
       {createPortal(
         <Modal onClose={closeEditBoardModal} isOpen={isEditBoardModalOpen}>
-          <EditBoard closeEditBoardModal={closeEditBoardModal} />
+          <EditBoard
+            closeEditBoardModal={closeEditBoardModal}
+            currentBoard={currentBoard}
+          />
         </Modal>,
         document.getElementById('portal'),
       )}
       {createPortal(
         <Modal onClose={closeDeleteBoardModal} isOpen={isDeleteBoardModalOpen}>
-          <DeleteBoard closeDeleteBoardModal={closeDeleteBoardModal} />
+          <DeleteBoard
+            closeDeleteBoardModal={closeDeleteBoardModal}
+            currentBoard={currentBoard}
+          />
         </Modal>,
         document.getElementById('portal'),
       )}
@@ -113,6 +123,7 @@ const StyledTopbar = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 5rem;
+  border-bottom: 1px solid #444;
 
   @media screen and (max-width: 640px) {
     height: 4rem;
@@ -127,10 +138,6 @@ const AddNewTaskButton = styled.button`
   padding: 1rem 1.5rem;
   border-radius: 1e3px;
   cursor: pointer;
-
-  @media screen and (max-width: 640px) {
-    display: none;
-  }
 `;
 
 export default Topbar;

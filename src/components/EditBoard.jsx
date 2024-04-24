@@ -1,33 +1,29 @@
 import { useState } from 'react';
-import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { v4 as uuid } from 'uuid';
+import { useMutation } from '@apollo/client';
 
+import Form from './Form';
 import FormControl from './FormControl';
-import Flex from './Flex';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
 import Button from './Button';
-import { emptyColumn } from '../data';
-import { selectedBoard, updateBoard } from '../redux/boardSlice';
+import { EDIT_BOARD, GET_BOARD } from '../queries';
 
-const EditBoard = ({ closeEditBoardModal }) => {
-  const dispatch = useDispatch();
-  const board = useSelector(selectedBoard);
+const EditBoard = ({ currentBoard, closeEditBoardModal }) => {
+  const [name, setName] = useState(currentBoard.name);
+  const [columns, setColumns] = useState(currentBoard.columns);
+  const [deletedColumnIds, setDeletedColumnsIds] = useState([]);
+  const [editBoardMutation, { loading }] = useMutation(EDIT_BOARD, {
+    refetchQueries: [{ query: GET_BOARD, variables: { id: currentBoard.id } }],
+  });
 
-  const [boardName, setBoardName] = useState(board.name);
-  const [columns, setColumns] = useState(board.columns);
-
-  const onBoardNameChangeHandler = (ev) => {
-    setBoardName(ev.target.value);
-  };
-
-  const onColumnChangeHandler = (ev, id) => {
+  const columnChangeHandler = (event, id) => {
     setColumns((prevColumns) => {
       return prevColumns.map((column) => {
         if (column.id === id) {
           return {
             ...column,
-            name: ev.target.value,
+            name: event.target.value,
           };
         } else {
           return column;
@@ -37,74 +33,86 @@ const EditBoard = ({ closeEditBoardModal }) => {
   };
 
   const addNewColumn = () =>
-    setColumns((prevColumns) => prevColumns.concat(emptyColumn));
-
-  const removeColumn = (id) =>
-    setColumns((prevColumns) => prevColumns.filter((c) => c.id !== id));
-
-  const onSaveChanges = () => {
-    dispatch(
-      updateBoard({
-        id: board.id,
-        values: {
-          name: boardName,
-          columns,
-        },
+    setColumns((prevColumns) =>
+      prevColumns.concat({
+        id: uuid(),
+        name: '',
+        _new: true,
       }),
     );
-    closeEditBoardModal();
+
+  const removeColumn = (id) =>
+    setColumns((prevColumns) =>
+      prevColumns.filter((column) => {
+        if (column.id === id) {
+          if (column._new === undefined) {
+            setDeletedColumnsIds((value) => value.concat(column.id));
+          }
+          return false;
+        }
+        return true;
+      }),
+    );
+
+  const onSubmitHandler = (event) => {
+    event.preventDefault();
+    editBoardMutation({
+      variables: {
+        id: currentBoard.id,
+        name,
+        deletedColumnIds,
+        modifiedColumns: columns
+          .filter((column) => !column._new)
+          .map((column) => ({ id: column.id, name: column.name })),
+        newColumns: columns
+          .filter((column) => column._new)
+          .map((column) => column.name),
+      },
+      onCompleted() {
+        closeEditBoardModal();
+      },
+    });
   };
 
   return (
-    <StyledEditBoard>
-      <Title>Edit Board</Title>
+    <Form onSubmit={onSubmitHandler}>
+      <Form.Title>Edit Board</Form.Title>
       <FormControl>
-        <FormControl.Label>Board Name</FormControl.Label>
+        <FormControl.Label htmlFor="name">Board Name</FormControl.Label>
         <FormControl.Input
-          value={boardName}
-          onChange={onBoardNameChangeHandler}
+          id="name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          required
         />
       </FormControl>
       {columns.length > 0 && (
         <FormControl>
           <FormControl.Label>Board Columns</FormControl.Label>
-          <Flex $gap="1rem" $dir="column">
+          <div className="flex flex-col gap-4">
             {columns.map((column) => (
-              <Flex key={column.id} $gap="1rem" $items="center">
+              <div key={column.id} className="flex items-center gap-4">
                 <FormControl.Input
                   value={column.name}
-                  onChange={(ev) => onColumnChangeHandler(ev, column.id)}
+                  onChange={(event) => columnChangeHandler(event, column.id)}
+                  required
                 />
                 <IconButton onClick={() => removeColumn(column.id)}>
                   <IconCross />
                 </IconButton>
-              </Flex>
+              </div>
             ))}
-          </Flex>
+          </div>
         </FormControl>
       )}
-      <Flex $gap="1rem" $dir="column">
+      <div className="flex flex-col gap-4">
         <Button onClick={addNewColumn}>+Add New Column</Button>
-        <Button $primary onClick={onSaveChanges}>
+        <Button $primary loading={loading} type="submit">
           Save Changes
         </Button>
-      </Flex>
-    </StyledEditBoard>
+      </div>
+    </Form>
   );
 };
-
-const StyledEditBoard = styled.div`
-  padding: 2rem;
-  @media screen and (max-width: 640px) {
-    padding: 1rem;
-  }
-  background-color: #2b2c37;
-  border-radius: 0.5rem;
-`;
-
-const Title = styled.h3`
-  color: white;
-  margin-bottom: 2rem;
-`;
 
 export default EditBoard;

@@ -1,35 +1,35 @@
 import { useState } from 'react';
-import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
+import { v4 as uuid } from 'uuid';
+import { useMutation } from '@apollo/client';
 
+import Form from './Form';
 import FormControl from './FormControl';
-import Flex from './Flex';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
-import { uuidv4 } from '../utils';
 import Button from './Button';
-import { emptyBoard, emptyColumn } from '../data';
-import { insertBoard } from '../redux/boardSlice';
+import { CREATE_BOARD, GET_BOARDS } from '../queries';
+import { useAppContext } from '../AppContext';
 
-const AddNewBoard = ({ onClose }) => {
-  const [boardTitle, setBoardTitle] = useState('');
+const AddNewBoard = ({ closeAddNewBoardModal }) => {
+  const [name, setName] = useState('');
   const [columns, setColumns] = useState([
     {
-      id: uuidv4(),
-      title: 'Todo',
-      error: '',
+      id: uuid(),
+      name: 'Todo',
     },
   ]);
+  const [createBoardMutation, { loading }] = useMutation(CREATE_BOARD, {
+    refetchQueries: [{ query: GET_BOARDS }],
+  });
+  const { setCurrentBoardId } = useAppContext();
 
-  const dispatch = useDispatch();
-
-  const onColumnChangeHandler = (ev, id) => {
+  const columnChangeHandler = (event, id) => {
     setColumns((prevColumns) => {
       return prevColumns.map((column) => {
         if (column.id === id) {
           return {
             ...column,
-            title: ev.target.value,
+            name: event.target.value,
           };
         } else {
           return column;
@@ -41,87 +41,72 @@ const AddNewBoard = ({ onClose }) => {
   const addNewColumn = () =>
     setColumns((prevColumns) =>
       prevColumns.concat({
-        id: Math.random().toString(),
-        title: '',
-        error: '',
+        id: uuid(),
+        name: '',
       }),
     );
 
   const removeColumn = (id) =>
-    setColumns((prevColumns) => prevColumns.filter((c) => c.id !== id));
-
-  const onCreateNewBoard = () => {
-    dispatch(
-      insertBoard({
-        board: {
-          ...emptyBoard,
-          id: uuidv4(),
-          name: boardTitle,
-          columns: columns.map((c) => ({
-            ...emptyColumn,
-            name: c.title,
-            id: c.id,
-          })),
-        },
-      }),
+    setColumns((prevColumns) =>
+      prevColumns.filter((column) => column.id !== id),
     );
-    onClose();
+
+  const onSubmitHandler = (event) => {
+    event.preventDefault();
+    createBoardMutation({
+      variables: {
+        name,
+        columns: columns.map((column) => column.name),
+      },
+      onCompleted({ createBoard }) {
+        setCurrentBoardId(createBoard.id);
+        closeAddNewBoardModal();
+      },
+    });
   };
 
   return (
-    <StyledAddNewBoard>
-      <Title>Add new Board</Title>
+    <Form onSubmit={onSubmitHandler}>
+      <Form.Title>Add new Board</Form.Title>
       <FormControl>
-        <FormControl.Label>Board Name</FormControl.Label>
+        <FormControl.Label htmlFor="name">Board Name</FormControl.Label>
         <FormControl.Input
-          value={boardTitle}
-          onChange={(ev) => setBoardTitle(ev.target.value)}
+          id="name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
           placeholder="e.g. Web Design"
+          required
         />
       </FormControl>
       {columns.length > 0 && (
         <FormControl>
           <FormControl.Label>Board Columns</FormControl.Label>
-          <Flex $dir="column" $gap="1rem">
+          <div className="flex flex-col gap-4">
             {columns.map((column) => (
-              <Flex $items="center" $gap="1rem" key={column.id}>
+              <div key={column.id} className="flex items-center gap-4">
                 <FormControl.Input
-                  value={column.title}
-                  onChange={(ev) => onColumnChangeHandler(ev, column.id)}
+                  value={column.name}
+                  onChange={(event) => columnChangeHandler(event, column.id)}
+                  required
                 />
                 <IconButton onClick={() => removeColumn(column.id)}>
                   <IconCross />
                 </IconButton>
-              </Flex>
+              </div>
             ))}
-          </Flex>
+          </div>
         </FormControl>
       )}
-
-      <Flex $dir="column" $gap="1rem">
+      <div className="flex flex-col gap-4">
         <Button $full onClick={addNewColumn}>
           +Add New Column
         </Button>
-        <Button $full $primary onClick={onCreateNewBoard}>
+        <Button type="submit" $full $primary loading={loading}>
           Create New Board
         </Button>
-      </Flex>
-    </StyledAddNewBoard>
+      </div>
+    </Form>
   );
 };
-
-const StyledAddNewBoard = styled.div`
-  padding: 2rem;
-  @media screen and (max-width: 640px) {
-    padding: 1rem;
-  }
-  background-color: #2b2c37;
-  border-radius: 0.5rem;
-`;
-
-const Title = styled.h3`
-  color: white;
-  margin-bottom: 2rem;
-`;
 
 export default AddNewBoard;

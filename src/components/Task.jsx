@@ -5,13 +5,16 @@ import { useDisclosure } from '../hooks';
 import Modal from './Modal';
 import TaskInfo from './TaskInfo';
 
-const Task = ({ task }) => {
+const Task = ({ task, currentBoard }) => {
   const {
     isOpen: isTaskInfoModalOpen,
     onOpen: showTaskInfoModal,
     onClose: closeTaskInfoModal,
   } = useDisclosure();
-  const subtasksRemaining = task.subtasks.filter((st) => st.isCompleted).length;
+  const subtasksCompleted = task.subtasks.reduce(
+    (count, subtask) => (subtask.isCompleted ? count + 1 : count),
+    0,
+  );
 
   return (
     <>
@@ -23,17 +26,21 @@ const Task = ({ task }) => {
             'transfer',
             JSON.stringify({
               taskId: task.id,
-              taskStatus: task.status,
+              columnId: task.columnId,
             }),
           );
         }}
       >
         <h4>{task.title}</h4>
-        <div>{`${subtasksRemaining} of ${task.subtasks.length} subtasks`}</div>
+        <div>{`${subtasksCompleted} of ${task.subtasks.length} subtasks`}</div>
       </StyledTask>
       {createPortal(
         <Modal onClose={closeTaskInfoModal} isOpen={isTaskInfoModalOpen}>
-          <TaskInfo task={task} closeTaskInfoModal={closeTaskInfoModal} />
+          <TaskInfo
+            task={task}
+            currentBoard={currentBoard}
+            closeTaskInfoModal={closeTaskInfoModal}
+          />
         </Modal>,
         document.getElementById('portal'),
       )}

@@ -1,57 +1,60 @@
 import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { useMutation } from '@apollo/client';
 
 import Button from './Button';
-import Flex from './Flex';
-import { deleteBoard, selectedBoard } from '../redux/boardSlice';
+import { DELETE_BOARD, GET_BOARDS } from '../queries';
+import { useAppContext } from '../AppContext';
 
-const DeleteBoard = ({ closeDeleteBoardModal }) => {
-  const dispatch = useDispatch();
+const DeleteBoard = ({ closeDeleteBoardModal, currentBoard }) => {
+  const { setCurrentBoardId } = useAppContext();
+  const [deleteBoardMutation, { loading }] = useMutation(DELETE_BOARD, {
+    refetchQueries: [{ query: GET_BOARDS }],
+  });
 
-  const board = useSelector(selectedBoard);
+  const deleteBoardHandler = () => {
+    deleteBoardMutation({
+      variables: {
+        id: currentBoard.id,
+      },
+      onCompleted() {
+        setCurrentBoardId(null);
+        closeDeleteBoardModal();
+      },
+    });
+  };
 
   return (
     <StyledDeleteBoard>
-      <h3>Delete this board?</h3>
-      <p>
-        Are you sure you want to delete the &quot;{board.name}&quot; board? This
-        action will remove all columns and tasks and cannot be reversed.
+      <h3 className="text-[#ea5555]">Delete this board?</h3>
+      <p className="font-bolder my-2 text-[#828fa3]">
+        Are you sure you want to delete the &quot;{currentBoard.name}&quot;
+        board? This action will remove all columns and tasks and cannot be
+        reversed.
       </p>
-      <Flex $gap="1rem">
+      <div className="flex gap-4">
         <DeleteButton
+          className="flex-1"
           $full
-          onClick={() => {
-            dispatch(deleteBoard({ id: board.id }));
-            closeDeleteBoardModal();
-          }}
+          onClick={deleteBoardHandler}
+          loading={loading}
         >
           Delete
         </DeleteButton>
-        <Button $full onClick={closeDeleteBoardModal}>
+        <Button className="flex-1" $full onClick={closeDeleteBoardModal}>
           Cancel
         </Button>
-      </Flex>
+      </div>
     </StyledDeleteBoard>
   );
 };
 
 const StyledDeleteBoard = styled.div`
   padding: 2rem;
-  @media screen and (max-width: 640px) {
-    padding: 1rem;
-  }
   background-color: #2b2c37;
   border-radius: 0.5rem;
 
-  > h3 {
-    color: #ea5555;
-  }
-
-  > p {
-    color: #828fa3;
-    margin: 1rem 0;
-    font-size: 14px;
-    font-weight: bolder;
+  @media screen and (max-width: 640px) {
+    padding: 1rem;
   }
 `;
 

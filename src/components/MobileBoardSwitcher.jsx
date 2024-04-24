@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { createPortal } from 'react-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { gql, useQuery } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
 
 import BoardList from './BoardList';
 import BoardListItem from './BoardListItem';
@@ -8,53 +9,80 @@ import IconBoard from './icons/IconBoard';
 import AddNewBoard from './AddNewBoard';
 import { useDisclosure } from '../hooks';
 import Modal from './Modal';
-import { selectBoard } from '../redux/boardSlice';
+import { useAppContext } from '../AppContext';
+
+const GET_BOARDS = gql`
+  query GetBoards {
+    getBoards {
+      id
+      name
+    }
+  }
+`;
 
 const MobileBoardSwitcher = ({ closeMobileBoardSwitcher }) => {
-  const dispatch = useDispatch();
-
-  const boards = useSelector((s) => s.board.boards);
-  const selectedBoardId = useSelector((s) => s.board.selectedBoardId);
-
+  const navigate = useNavigate();
   const {
     isOpen: isAddNewBoardModalOpen,
     onOpen: showAddNewBoardModal,
     onClose: closeAddNewBoardModal,
   } = useDisclosure();
+  const { currentBoardId, setCurrentBoardId, currentUser, setCurrentUser } =
+    useAppContext();
+  const { client, data, loading, error } = useQuery(GET_BOARDS);
+
+  if (loading) return <h1>Loading...</h1>;
+  if (error) return <h1>Error</h1>;
+
+  const switchBoard = (id) => {
+    setCurrentBoardId(id);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    setCurrentUser(null);
+    setCurrentBoardId(null);
+    client.clearStore();
+    navigate('/kanban-task-management-web-app/login', { replace: true });
+  };
 
   return (
     <>
       <StyledMobileBoardSwitcher>
-        <Header>ALL BOARDS ({boards.length})</Header>
-        <CreateNewBoardButton
-          onClick={() => {
-            showAddNewBoardModal();
-          }}
-        >
-          <IconBoard />
-          +Create New Board
-        </CreateNewBoardButton>
+        <header>
+          <Heading>ALL BOARDS ({data.getBoards.length})</Heading>
+          <CreateNewBoardButton
+            onClick={() => {
+              showAddNewBoardModal();
+            }}
+          >
+            <IconBoard />
+            +Create New Board
+          </CreateNewBoardButton>
+        </header>
         <BoardList>
-          {boards.map((b) => (
+          {data.getBoards.map((board) => (
             <BoardListItem
-              key={b.id}
+              key={board.id}
               onClick={() => {
-                dispatch(
-                  selectBoard({
-                    id: b.id,
-                  }),
-                );
+                switchBoard(board.id);
                 closeMobileBoardSwitcher();
               }}
-              board={b}
-              active={b.id === selectedBoardId}
+              board={board}
+              active={board.id === currentBoardId}
             />
           ))}
         </BoardList>
+        <footer className="p-4">
+          <button onClick={logout} className="text-white">
+            {`Logout (${currentUser.username})`}
+          </button>
+        </footer>
       </StyledMobileBoardSwitcher>
       {createPortal(
         <Modal onClose={closeAddNewBoardModal} isOpen={isAddNewBoardModalOpen}>
-          <AddNewBoard onClose={closeAddNewBoardModal} />
+          <AddNewBoard closeAddNewBoardModal={closeAddNewBoardModal} />
         </Modal>,
         document.getElementById('portal'),
       )}
@@ -64,14 +92,17 @@ const MobileBoardSwitcher = ({ closeMobileBoardSwitcher }) => {
 
 const StyledMobileBoardSwitcher = styled.div`
   padding: 2rem;
+  background-color: #2b2c37;
+  border-radius: 0.5rem;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+
   @media screen and (max-width: 640px) {
     padding: 1rem;
   }
-  background-color: #2b2c37;
-  border-radius: 0.5rem;
 `;
 
-const Header = styled.header`
+const Heading = styled.h2`
   color: #828fa3;
   letter-spacing: 0.25em;
   margin-bottom: 1rem;

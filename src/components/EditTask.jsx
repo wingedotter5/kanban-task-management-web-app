@@ -1,36 +1,40 @@
 import { useState } from 'react';
-import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { v4 as uuid } from 'uuid';
+import { useMutation } from '@apollo/client';
 
+import Form from './Form';
 import FormControl from './FormControl';
 import Button from './Button';
-import Flex from './Flex';
-import { uuidv4 } from '../utils';
 import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
-import Select from './Select';
-import { selectedBoard, updateTask } from '../redux/boardSlice';
+import { EDIT_TASK, GET_BOARD } from '../queries';
 
-const EditTask = ({ task, closeEditTaskModal }) => {
-  const dispatch = useDispatch();
-
-  const board = useSelector(selectedBoard);
-  const statuses = board.columns.map((c) => c.name);
-
-  const [taskTitle, setTaskTitle] = useState(task.title);
-  const [taskDescription, setTaskDescription] = useState(task.description);
-  const [taskStatus, setTaskStatus] = useState(task.status);
-  const [subtasks, setSubtasks] = useState(
-    task.subtasks.map((st) => ({ ...st, error: '' })),
+const EditTask = ({ task, currentBoard, closeEditTaskModal }) => {
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description);
+  const [status, setStatus] = useState(
+    currentBoard.columns.find((c) => c.id === task.columnId).name,
   );
+  const [subtasks, setSubtasks] = useState(task.subtasks);
+  const [deletedSubtaskIds, setDeletedSubtasksIds] = useState([]);
+  const [editTask, { loading }] = useMutation(EDIT_TASK, {
+    refetchQueries: [
+      {
+        query: GET_BOARD,
+        variables: {
+          id: currentBoard.id,
+        },
+      },
+    ],
+  });
 
-  const onSubtaskChangeHandler = (ev, id) => {
+  const subtaskChangeHandler = (event, id) => {
     setSubtasks((prevSubtasks) => {
       return prevSubtasks.map((subtask) => {
         if (subtask.id === id) {
           return {
             ...subtask,
-            title: ev.target.value,
+            title: event.target.value,
           };
         } else {
           return subtask;
@@ -42,112 +46,114 @@ const EditTask = ({ task, closeEditTaskModal }) => {
   const addNewSubtask = () =>
     setSubtasks((prevSubtasks) =>
       prevSubtasks.concat({
-        id: uuidv4(),
+        id: uuid(),
         title: '',
-        error: '',
-        isCompleted: false,
+        _new: true,
       }),
     );
 
   const removeSubtask = (id) =>
-    setSubtasks((prevSubtasks) => prevSubtasks.filter((s) => s.id !== id));
-
-  const saveTaskHandler = () => {
-    dispatch(
-      updateTask({
-        boardId: board.id,
-        oldColumnId: board.columns.find((c) => c.name === task.status).id,
-        newColumnId: board.columns.find((c) => c.name === taskStatus).id,
-        taskId: task.id,
-        values: {
-          title: taskTitle,
-          description: taskDescription,
-          status: taskStatus,
-          subtasks: subtasks.map((s) => {
-            const mod = { ...s };
-            delete mod.error;
-            return mod;
-          }),
-        },
+    setSubtasks((prevSubtasks) =>
+      prevSubtasks.filter((subtask) => {
+        if (subtask.id === id) {
+          if (subtask._new === undefined) {
+            setDeletedSubtasksIds((value) => value.concat(id));
+          }
+          return false;
+        }
+        return true;
       }),
     );
-    closeEditTaskModal();
+
+  const onSubmitHandler = (event) => {
+    event.preventDefault();
+    const columnId = currentBoard.columns.find((c) => c.name === status).id;
+    editTask({
+      variables: {
+        id: task.id,
+        title,
+        description,
+        columnId,
+        deletedSubtaskIds,
+        modifiedSubtasks: subtasks
+          .filter((subtask) => !subtask._new)
+          .map((subtask) => ({ id: subtask.id, title: subtask.title })),
+        newSubtasks: subtasks
+          .filter((subtask) => subtask._new)
+          .map((subtask) => subtask.title),
+      },
+      onCompleted() {
+        closeEditTaskModal();
+      },
+    });
   };
 
+  const statuses = currentBoard.columns.map((column) => column.name);
+
   return (
-    <StyledAddNewTask>
-      <Title>Edit Task</Title>
+    <Form onSubmit={onSubmitHandler}>
+      <Form.Title>Edit Task</Form.Title>
       <FormControl>
-        <FormControl.Label>Task Name</FormControl.Label>
+        <FormControl.Label htmlFor="title">Task Name</FormControl.Label>
         <FormControl.Input
-          value={taskTitle}
-          onChange={(ev) => setTaskTitle(ev.target.value)}
+          id="title"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
           placeholder="e.g. Take coffee break"
+          required
         />
       </FormControl>
       <FormControl>
-        <FormControl.Label>Description</FormControl.Label>
+        <FormControl.Label htmlFor="description">Description</FormControl.Label>
         <FormControl.Textarea
-          value={taskDescription}
-          onChange={(ev) => setTaskDescription(ev.target.value)}
+          id="description"
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
           rows="5"
           placeholder="e.g. It's always good to take a break. This 15 minute break will recharge the batteries a little."
         ></FormControl.Textarea>
       </FormControl>
       <FormControl>
         <FormControl.Label>Subtasks</FormControl.Label>
-        <Flex $dir="column" $gap="1rem">
+        <div className="flex flex-col gap-4">
           {subtasks.map((subtask) => (
-            <Flex $items="center" $gap="1rem" key={subtask.id}>
+            <div key={subtask.id} className="flex items-center gap-4">
               <FormControl.Input
                 value={subtask.title}
-                onChange={(ev) => onSubtaskChangeHandler(ev, subtask.id)}
+                onChange={(event) => subtaskChangeHandler(event, subtask.id)}
+                required
               />
               <IconButton onClick={() => removeSubtask(subtask.id)}>
                 <IconCross />
               </IconButton>
-            </Flex>
+            </div>
           ))}
-        </Flex>
+        </div>
       </FormControl>
-      <Flex $dir="column" $gap="1rem">
+      <div className="flex flex-col gap-4">
         <Button $full onClick={addNewSubtask}>
           +Add New Subtask
         </Button>
         <FormControl style={{ marginBottom: 0 }}>
-          <FormControl.Label>Current Status</FormControl.Label>
-          <Select
-            $full
-            value={taskStatus}
-            onChange={(ev) => setTaskStatus(ev.target.value)}
+          <FormControl.Label htmlFor="status">Current Status</FormControl.Label>
+          <FormControl.Select
+            id="status"
+            value={status}
+            onChange={(event) => setStatus(event.target.value)}
           >
             {statuses.map((status) => (
               <option key={status} value={status}>
                 {status}
               </option>
             ))}
-          </Select>
+          </FormControl.Select>
         </FormControl>
-        <Button $primary $full onClick={saveTaskHandler}>
+        <Button $primary $full loading={loading} type="submit">
           Save Changes
         </Button>
-      </Flex>
-    </StyledAddNewTask>
+      </div>
+    </Form>
   );
 };
-
-const StyledAddNewTask = styled.div`
-  padding: 2rem;
-  @media screen and (max-width: 640px) {
-    padding: 1rem;
-  }
-  background-color: #2b2c37;
-  border-radius: 0.5rem;
-`;
-
-const Title = styled.h3`
-  color: white;
-  margin-bottom: 2rem;
-`;
 
 export default EditTask;

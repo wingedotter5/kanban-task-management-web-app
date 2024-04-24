@@ -1,127 +1,149 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { createPortal } from 'react-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useMutation } from '@apollo/client';
 
-import Flex from './Flex';
 import FlyOut from './FlyOut';
 import FormControl from './FormControl';
-import Select from './Select';
 import Button from './Button';
 import { useDisclosure } from '../hooks';
 import Modal from './Modal';
 import EditTask from './EditTask';
-import { selectedBoard, updateTask, deleteTask } from '../redux/boardSlice';
+import { DELETE_TASK, GET_BOARD, EDIT_TASK } from '../queries';
 
-const TaskInfo = ({ task, closeTaskInfoModal }) => {
-  const [status, setStatus] = useState(task.status);
+const TaskInfo = ({ task, currentBoard, closeTaskInfoModal }) => {
+  const [status, setStatus] = useState(
+    currentBoard.columns.find((c) => c.id === task.columnId).name,
+  );
   const [subtasks, setSubtasks] = useState(task.subtasks);
   const {
     isOpen: isEditTaskModalOpen,
     onOpen: showEditTaskModal,
     onClose: closeEditTaskModal,
   } = useDisclosure();
-
-  const dispatch = useDispatch();
-
-  const board = useSelector(selectedBoard);
-
-  const subtasksRemaining = subtasks.filter((st) => st.isCompleted).length;
+  const [deleteTask] = useMutation(DELETE_TASK, {
+    refetchQueries: [
+      {
+        query: GET_BOARD,
+        variables: {
+          id: currentBoard.id,
+        },
+      },
+    ],
+  });
+  const [editTaskMutation, { loading }] = useMutation(EDIT_TASK, {
+    refetchQueries: [
+      {
+        query: GET_BOARD,
+        variables: {
+          id: currentBoard.id,
+        },
+      },
+    ],
+  });
 
   useEffect(() => {
     setSubtasks(task.subtasks);
   }, [task]);
 
-  const onStatusChangeHandler = (ev, id) => {
+  const statusChangeHandler = (event, id) => {
     setSubtasks((prevSubtasks) => {
-      return prevSubtasks.map((st) => {
-        if (st.id === id) {
+      return prevSubtasks.map((subtask) => {
+        if (subtask.id === id) {
           return {
-            ...st,
-            isCompleted: ev.target.checked,
+            ...subtask,
+            isCompleted: event.target.checked,
           };
         } else {
-          return st;
+          return subtask;
         }
       });
     });
   };
 
-  const onSaveChanges = () => {
-    dispatch(
-      updateTask({
-        boardId: board.id,
-        oldColumnId: board.columns.find((c) => c.name === task.status).id,
-        newColumnId: board.columns.find((c) => c.name === status).id,
-        taskId: task.id,
-        values: {
-          status,
-          subtasks,
-        },
-      }),
-    );
-    closeTaskInfoModal();
+  const saveChanges = () => {
+    let columnId = currentBoard.columns.find((c) => c.name === status).id;
+    editTaskMutation({
+      variables: {
+        id: task.id,
+        columnId,
+        modifiedSubtasks: subtasks.map((subtask) => ({
+          id: subtask.id,
+          isCompleted: subtask.isCompleted,
+        })),
+      },
+      onCompleted() {
+        closeTaskInfoModal();
+      },
+    });
   };
 
-  const onDeleteTask = () => {
-    dispatch(
-      deleteTask({
-        boardId: board.id,
-        columnId: board.columns.find((c) => c.name === task.status).id,
-        taskId: task.id,
-      }),
-    );
+  const deleteTaskHandler = () => {
+    deleteTask({
+      variables: {
+        id: task.id,
+      },
+      onCompleted() {
+        closeTaskInfoModal();
+      },
+    });
   };
+
+  const completedSubtasksCount = subtasks.reduce(
+    (count, subtask) => (subtask.isCompleted ? count + 1 : count),
+    0,
+  );
 
   return (
     <>
       <StyledTaskInfo>
-        <Flex $justify="space-between" $items="center">
-          <Title>{task.title}</Title>
+        <div className="flex items-center justify-between">
+          <h3 className="text-white">{task.title}</h3>
           <FlyOut>
             <FlyOut.Toggle />
             <FlyOut.List>
               <FlyOut.Item onClick={showEditTaskModal}>Edit Task</FlyOut.Item>
-              <FlyOut.Item onClick={onDeleteTask}>Delete Task</FlyOut.Item>
+              <FlyOut.Item onClick={deleteTaskHandler}>Delete Task</FlyOut.Item>
             </FlyOut.List>
           </FlyOut>
-        </Flex>
+        </div>
         <Small>
-          Subtasks ({subtasksRemaining} of {subtasks.length})
+          Subtasks ({completedSubtasksCount} of {subtasks.length})
         </Small>
-        {subtasks.map((st) => (
-          <Subtask key={st.id}>
+        {subtasks.map((subtask) => (
+          <Subtask key={subtask.id}>
             <input
               type="checkbox"
-              checked={st.isCompleted}
-              onChange={(ev) => onStatusChangeHandler(ev, st.id)}
+              checked={subtask.isCompleted}
+              onChange={(event) => statusChangeHandler(event, subtask.id)}
             />
-            {st.title}
+            {subtask.title}
           </Subtask>
         ))}
         <FormControl>
           <FormControl.Label>Current Status</FormControl.Label>
-          <Select
+          <FormControl.Select
             value={status}
-            $full
-            onChange={(ev) => setStatus(ev.target.value)}
+            onChange={(event) => setStatus(event.target.value)}
           >
-            {board.columns
-              .map((c) => c.name)
-              .map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-          </Select>
+            {currentBoard.columns.map(({ name: status }) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </FormControl.Select>
         </FormControl>
-        <Button $primary $full onClick={onSaveChanges}>
+        <Button $primary $full onClick={saveChanges} loading={loading}>
           Save Changes
         </Button>
       </StyledTaskInfo>
       {createPortal(
         <Modal onClose={closeEditTaskModal} isOpen={isEditTaskModalOpen}>
-          <EditTask task={task} closeEditTaskModal={closeEditTaskModal} />
+          <EditTask
+            task={task}
+            currentBoard={currentBoard}
+            closeEditTaskModal={closeEditTaskModal}
+          />
         </Modal>,
         document.getElementById('portal'),
       )}
@@ -131,15 +153,12 @@ const TaskInfo = ({ task, closeTaskInfoModal }) => {
 
 const StyledTaskInfo = styled.div`
   padding: 2rem;
+  background-color: #2b2c37;
+  border-radius: 0.5rem;
+
   @media screen and (max-width: 640px) {
     padding: 1rem;
   }
-  background-color: #2b2c37;
-  border-radius: 0.5rem;
-`;
-
-const Title = styled.h3`
-  color: white;
 `;
 
 const Small = styled.small`

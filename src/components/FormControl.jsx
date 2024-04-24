@@ -4,7 +4,7 @@ const Label = styled.label`
   display: block;
   color: white;
   font-weight: bolder;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 0.5rem;
 `;
 
@@ -42,6 +42,13 @@ const Textarea = styled.textarea`
   }
 `;
 
+const Select = styled.select`
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: white;
+`;
+
 const FormControl = styled.div`
   margin-bottom: 1rem;
 `;
@@ -49,5 +56,6 @@ const FormControl = styled.div`
 FormControl.Label = Label;
 FormControl.Input = Input;
 FormControl.Textarea = Textarea;
+FormControl.Select = Select;
 
 export default FormControl;
