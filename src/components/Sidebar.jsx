@@ -43,7 +43,7 @@ const Sidebar = () => {
     setCurrentBoardId(null);
     setCurrentUser(null);
     client.clearStore();
-    navigate('/kanban-task-management-web-app/login', { replace: true });
+    navigate('/login', { replace: true });
   };
 
   return (

@@ -44,7 +44,7 @@ const MobileBoardSwitcher = ({ closeMobileBoardSwitcher }) => {
     setCurrentUser(null);
     setCurrentBoardId(null);
     client.clearStore();
-    navigate('/kanban-task-management-web-app/login', { replace: true });
+    navigate('/login', { replace: true });
   };
 
   return (

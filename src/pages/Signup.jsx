@@ -15,10 +15,6 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [signupMutation, { loading, error }] = useMutation(SIGNUP);
 
-  if (localStorage.getItem('token')) {
-    return <Navigate to="/kanban-task-management-web-app/" />;
-  }
-
   const onSubmitHandler = (event) => {
     event.preventDefault();
     signupMutation({
@@ -30,10 +26,14 @@ const Signup = () => {
         setCurrentUser(signup.user);
         localStorage.setItem('currentUser', JSON.stringify(signup.user));
         localStorage.setItem('token', signup.token);
-        navigate('/kanban-task-management-web-app/');
+        navigate('/');
       },
     });
   };
+
+  if (localStorage.getItem('token')) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#20212c] px-2">
@@ -64,7 +64,7 @@ const Signup = () => {
         </Button>
         <Link
           className="mt-4 block w-full rounded-full bg-white p-4 text-center font-bold text-[#635fc7]"
-          to="/kanban-task-management-web-app/login"
+          to="/login"
         >
           Login
         </Link>
