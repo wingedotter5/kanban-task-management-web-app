@@ -99,4 +99,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export { Login as Component };

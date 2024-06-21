@@ -1,22 +1,18 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
-
 const router = createBrowserRouter(
   [
     {
       path: '/',
-      element: <Dashboard />,
+      lazy: () => import('./pages/Dashboard'),
     },
     {
       path: 'login',
-      element: <Login />,
+      lazy: () => import('./pages/Login'),
     },
     {
       path: 'signup',
-      element: <Signup />,
+      lazy: () => import('./pages/Signup'),
     },
   ],
   {
