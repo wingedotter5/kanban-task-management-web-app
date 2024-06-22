@@ -9,7 +9,7 @@ import IconBoard from './icons/IconBoard';
 import AddNewBoard from './AddNewBoard';
 import { useDisclosure } from '../hooks';
 import Modal from './Modal';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../appContext';
 
 const GET_BOARDS = gql`
   query GetBoards {

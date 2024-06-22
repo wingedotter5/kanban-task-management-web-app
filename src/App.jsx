@@ -1,18 +1,46 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  redirect,
+} from 'react-router-dom';
 
 const router = createBrowserRouter(
   [
     {
       path: '/',
-      lazy: () => import('./pages/Dashboard'),
+      lazy() {
+        return import('./pages/Dashboard');
+      },
+      loader() {
+        if (!localStorage.getItem('token')) {
+          return redirect('/login');
+        }
+        return null;
+      },
     },
     {
       path: 'login',
-      lazy: () => import('./pages/Login'),
+      lazy() {
+        return import('./pages/Login');
+      },
+      loader() {
+        if (localStorage.getItem('token')) {
+          return redirect('/');
+        }
+        return null;
+      },
     },
     {
       path: 'signup',
-      lazy: () => import('./pages/Signup'),
+      lazy() {
+        return import('./pages/Signup');
+      },
+      loader() {
+        if (localStorage.getItem('token')) {
+          return redirect('/');
+        }
+        return null;
+      },
     },
   ],
   {

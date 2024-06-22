@@ -8,7 +8,7 @@ import IconButton from './IconButton';
 import IconCross from './icons/IconCross';
 import Button from './Button';
 import { CREATE_BOARD, GET_BOARDS } from '../queries';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../appContext';
 
 const AddNewBoard = ({ closeAddNewBoardModal }) => {
   const [name, setName] = useState('');

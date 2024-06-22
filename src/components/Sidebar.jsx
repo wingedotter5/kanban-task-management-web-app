@@ -10,7 +10,7 @@ import { useDisclosure } from '../hooks';
 import IconLogoLight from './icons/IconLogoLight';
 import BoardListItem from './BoardListItem';
 import BoardList from './BoardList';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../appContext';
 import { GET_BOARDS } from '../queries';
 import Loader from './Loader';
 

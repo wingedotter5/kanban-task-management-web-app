@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client';
 
 import Button from './Button';
 import { DELETE_BOARD, GET_BOARDS } from '../queries';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../appContext';
 
 const DeleteBoard = ({ closeDeleteBoardModal, currentBoard }) => {
   const { setCurrentBoardId } = useAppContext();

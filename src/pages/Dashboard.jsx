@@ -1,5 +1,3 @@
-import { redirect } from 'react-router-dom';
-
 import Sidebar from '../components/Sidebar';
 import Panel from '../components/Panel';
 
@@ -10,13 +8,6 @@ const Dashboard = () => {
       <Panel />
     </div>
   );
-};
-
-export const loader = () => {
-  if (!localStorage.getItem('token')) {
-    return redirect('/login');
-  }
-  return null;
 };
 
 export { Dashboard as Component };

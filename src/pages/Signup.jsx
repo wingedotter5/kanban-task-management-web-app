@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate, redirect } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 
 import Form from '../components/Form';
 import FormControl from '../components/FormControl';
 import Button from '../components/Button';
 import { SIGNUP } from '../queries';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../appContext';
 
 const Signup = () => {
   const { setCurrentUser } = useAppContext();
@@ -74,13 +74,6 @@ const Signup = () => {
       </Form>
     </div>
   );
-};
-
-export const loader = () => {
-  if (localStorage.getItem('token')) {
-    return redirect('/');
-  }
-  return null;
 };
 
 export { Signup as Component };
