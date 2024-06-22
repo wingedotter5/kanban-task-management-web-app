@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { Link, useNavigate, redirect } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 
 import Form from '../components/Form';
@@ -47,10 +47,6 @@ const Login = () => {
     });
   };
 
-  if (localStorage.getItem('token')) {
-    return <Navigate to="/" />;
-  }
-
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#20212c] px-2">
       <Form className="max-w-[500px] flex-1" onSubmit={onSubmitHandler}>
@@ -97,6 +93,13 @@ const Login = () => {
       </Form>
     </div>
   );
+};
+
+export const loader = () => {
+  if (localStorage.getItem('token')) {
+    return redirect('/');
+  }
+  return null;
 };
 
 export { Login as Component };
