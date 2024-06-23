@@ -7,7 +7,7 @@ import Column from './Column';
 import EditBoard from './EditBoard';
 import Modal from './Modal';
 import { useDisclosure } from '../hooks';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../appContext';
 import { GET_BOARD } from '../queries';
 import Loader from './Loader';
 

@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 
 import Form from '../components/Form';
 import FormControl from '../components/FormControl';
 import Button from '../components/Button';
 import { LOGIN } from '../queries';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../appContext';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,10 +14,6 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginMuation, { loading, error }] = useMutation(LOGIN);
-
-  if (localStorage.getItem('token')) {
-    return <Navigate to="/kanban-task-management-web-app/" />;
-  }
 
   const onSubmitHandler = (event) => {
     event.preventDefault();
@@ -29,7 +25,7 @@ const Login = () => {
       onCompleted({ login }) {
         setCurrentUser(login.user);
         localStorage.setItem('token', login.token);
-        navigate('/kanban-task-management-web-app/');
+        navigate('/');
       },
     });
   };
@@ -46,7 +42,7 @@ const Login = () => {
         setCurrentUser(login.user);
         localStorage.setItem('currentUser', JSON.stringify(login.user));
         localStorage.setItem('token', login.token);
-        navigate('/kanban-task-management-web-app/');
+        navigate('/');
       },
     });
   };
@@ -80,7 +76,7 @@ const Login = () => {
         </Button>
         <Link
           className="mt-4 block w-full rounded-full bg-white p-4 text-center font-bold text-[#635fc7]"
-          to="/kanban-task-management-web-app/signup"
+          to="/signup"
         >
           Signup
         </Link>
@@ -99,4 +95,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export { Login as Component };

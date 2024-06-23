@@ -10,7 +10,7 @@ import { useDisclosure } from '../hooks';
 import IconLogoLight from './icons/IconLogoLight';
 import BoardListItem from './BoardListItem';
 import BoardList from './BoardList';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../appContext';
 import { GET_BOARDS } from '../queries';
 import Loader from './Loader';
 
@@ -43,7 +43,7 @@ const Sidebar = () => {
     setCurrentBoardId(null);
     setCurrentUser(null);
     client.clearStore();
-    navigate('/kanban-task-management-web-app/login', { replace: true });
+    navigate('/login', { replace: true });
   };
 
   return (
